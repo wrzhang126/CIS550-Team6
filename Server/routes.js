@@ -7,7 +7,7 @@ const connection = require("./db");
 // ===========================================================================
 // ROUTE FUNCTIONS
 // ===========================================================================
-async function hello(req, res) {
+function hello(req, res) {
     // a GET request to /hello?name=Steve
     if (req.query.name) {
         res.send(`Hello, ${req.query.name}! Welcome to the the server!`)
@@ -15,17 +15,19 @@ async function hello(req, res) {
         res.send(`Hello! Welcome to the server!`)
     }
 }
-async function test_db_query(req, res) {
+function test_db_query(req, res) {
 
     if (req.query.id) {
 
+        // get any req params
         const artist_id = req.query.id
-        console.log(artist_id)
         
         connection.query(
+            // query
             `SELECT *  
             FROM Artist a
             WHERE a.artist_id = "${artist_id}"`, 
+            // callback
             function (error, results, fields) {
                 if (error) {
                     console.log(error)
@@ -39,6 +41,7 @@ async function test_db_query(req, res) {
     } else {
         // Select top 10 popular artists whose genre is hip hop
         connection.query(
+            // query
             `SELECT *  
             FROM Artist a
             WHERE artist_id IN (
@@ -48,6 +51,7 @@ async function test_db_query(req, res) {
             )
             ORDER BY popularity DESC
             LIMIT 10;`, 
+            // callback
             function (error, results, fields) {
                 if (error) {
                     console.log(error)
@@ -61,7 +65,7 @@ async function test_db_query(req, res) {
 }
 
 // ===========================================================================
-// ROUTE FUNCTIONS
+// EXPORTS
 // ===========================================================================
 module.exports = {
     hello,

@@ -1,7 +1,12 @@
+// ===========================================================================
+// IMPORTS
+// ===========================================================================
 require('dotenv').config()
 const mysql = require('mysql');
  
-
+// ===========================================================================
+// DB CONNECTION SETUP
+// ===========================================================================
 let connection;
 connection = mysql.createConnection({
     host: process.env.RDS_HOST,
@@ -11,6 +16,15 @@ connection = mysql.createConnection({
     database: process.env.RDS_DB,
 });
 
-connection.connect();
+connection.connect(function(err) {
+    if (err) {
+      console.error('error connecting to database: ' + err.stack);
+      return;
+    }
+    console.log('database connected as id ' + connection.threadId);
+  });
 
+// ===========================================================================
+// EXPORTS
+// ===========================================================================
 module.exports = connection;
