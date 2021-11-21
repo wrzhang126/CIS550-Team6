@@ -12,7 +12,7 @@ function Filter() {
           className="me-2"
           aria-label="Search"
         />
-        <Button variant="outline-success">Search</Button>
+        <Button variant="outline-primary">Search</Button>
       </Form>
       <div style={{width: '90%',textAlign: "center", margin: "auto"}}>
       <div style={{fontWeight: 'bolder', textAlign: "center", color: "#0D6EFD"}}>Filter options</div>
