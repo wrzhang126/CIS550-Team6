@@ -5,9 +5,11 @@ import Nav from 'react-bootstrap/Nav';
 import FormControl from 'react-bootstrap/FormControl';
 import Form from 'react-bootstrap/Form';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+import { useNavigate } from "react-router-dom";
 
 export default function Navigationbar() {
+  const navigate = useNavigate();
+
   return (
     <div>
       <Navbar bg="light" expand="lg">
@@ -21,7 +23,7 @@ export default function Navigationbar() {
             navbarScroll
           >
             <Button style={{marginRight: "10px"}}>Search by Artist</Button>
-            <Button >Search by Song</Button>
+            <Button variant="outline-primary" onClick={()=> navigate('/searchbysong',{from: "SearchByArtist"})}>Search by Song</Button>
           </Nav>
           <Form className="d-flex">
           <FormControl
@@ -30,7 +32,7 @@ export default function Navigationbar() {
             className="me-2"
             aria-label="Search"
           />
-          <Button variant="outline-success">Search</Button>
+          <Button variant="outline-primary">Search</Button>
           </Form>
           </Navbar.Collapse>
         </Container>
