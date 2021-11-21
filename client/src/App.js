@@ -1,24 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
+import Navigationbar from './components/Navbar';
+import Filter from './components/Filter';
+import Body from './components/Body';
+import Image from 'react-bootstrap/Image';
 
+import './App.css'
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Navigationbar/>
+    <div id="main">
+      <div id="sticky" style={{width: "20%", minWidth: "400px", padding: "10px 0px 0px 10px"}}>
+          <Filter/>
+      </div>
+      <div id="sticky"style={{width: "70%", minWidth: "700px", padding: "10px 0px 0px 10px"}}>
+        <Body />
+      </div>
     </div>
+    </div>
+    
   );
 }
 
