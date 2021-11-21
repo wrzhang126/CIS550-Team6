@@ -1,21 +1,15 @@
-import Navigationbar from './components/Navbar';
-import Filter from './components/Filter';
-import Body from './components/Body';
-import Image from 'react-bootstrap/Image';
+import SearchByArtistPage from './components/SearchByArtistPage';
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 
 import './App.css'
 function App() {
   return (
     <div>
-      <Navigationbar/>
-    <div id="main">
-      <div id="sticky" style={{width: "20%", minWidth: "400px", padding: "10px 0px 0px 10px"}}>
-          <Filter/>
-      </div>
-      <div id="sticky"style={{width: "70%", minWidth: "700px", padding: "10px 0px 0px 10px"}}>
-        <Body />
-      </div>
-    </div>
+      <Router>
+        <Routes>
+          <Route path="/searchbyartist" element={<SearchByArtistPage/>}/>
+        </Routes>
+      </Router>
     </div>
     
   );
