@@ -22,7 +22,7 @@ export default function Navigationbar() {
             style={{ maxHeight: '100px' }}
             navbarScroll
           >
-            <Button style={{marginRight: "10px"}}>Search by Artist</Button>
+            <Button variant="outline-primary" onClick={()=> navigate('/searchbyartist',{from: "SearchBySong"})} style={{marginRight: "10px"}}>Search by Artist</Button>
             <Button variant="outline-primary" onClick={()=> navigate('/searchbysong',{from: "SearchByArtist"})}>Search by Song</Button>
           </Nav>
           <Form className="d-flex">
