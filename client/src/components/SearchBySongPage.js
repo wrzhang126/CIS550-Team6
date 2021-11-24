@@ -67,8 +67,8 @@ class SearchBySongPage extends React.Component {
 
         <div  style={{ width: '70vw', margin: '0 auto', marginTop: '2vh'}}>
           <h3>Songs</h3>
-          <Table dataSource={this.state.songsResults} columns={songColumns}/>
-            <Card>
+          <Table id="filter-container" dataSource={this.state.songsResults} columns={songColumns}/>
+            <Card id="filter-container">
               
               <CardBody>
                   <Row gutter='15' align='top' justify='top'>
@@ -101,7 +101,7 @@ class SearchBySongPage extends React.Component {
               </CardBody>
   
             </Card>
-            <Card style = {{width: "70vw%", marginTop : '2vh'}}>
+            <Card id="filter-container" style = {{width: "70vw%", marginTop : '2vh'}}>
               <CardBody>
                 <Row gutter='300' align = 'left'>
                   <Col>
