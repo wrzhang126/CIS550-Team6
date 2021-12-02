@@ -76,7 +76,7 @@ function all_artists(req, res) {
     
     connection.query(
         // query
-        `SELECT *  
+        `SELECT artist_id, name, popularity
         FROM Artist a
         ORDER BY name
         LIMIT ${(page-1)*pagesize}, ${pagesize}`, 
