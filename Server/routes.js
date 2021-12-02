@@ -76,7 +76,7 @@ function all_artists(req, res) {
     
     connection.query(
         // query
-        `SELECT artist_id, name, popularity
+        `SELECT a.artist_id, a.name, a.popularity
         FROM Artist a
         ORDER BY a.name
         LIMIT ${(page-1)*pagesize}, ${pagesize}`, 
@@ -106,7 +106,7 @@ function search_artists(req, res) {
     
     connection.query(
         // query
-        `SELECT artist_id, name, popularity
+        `SELECT a.artist_id, a.name, a.popularity
         FROM Artist a
         WHERE       a.name LIKE '%${name}%' 
                 AND a.popularity >= ${popularityLow}
@@ -179,6 +179,55 @@ function all_songs(req, res) {
     );
 }
 
+function search_songs(req, res) {
+    
+    // get pagesize from query parameter; defualt 100
+    const pagesize = req.query.pagesize ? req.query.pagesize : 100
+    // get page number; defualt 1
+    const page = req.query.page ? req.query.page : 1
+    // get name prameter; default empty string
+    const name = req.query.name ? req.query.name : ""
+    // get song prameters; defaults 0 and 1 for low and high respectively
+    const danceHigh = req.query.danceHigh ? req.query.danceHigh : 100
+    const danceLow = req.query.danceLow ? req.query.danceLow : 0
+    const energyHigh = req.query.energyHigh ? req.query.energyHigh : 100
+    const energyLow = req.query.energyLow ? req.query.energyLow : 0
+    const livenessHigh = req.query.livenessHigh ? req.query.livenessHigh : 100
+    const livenessLow = req.query.livenessLow ? req.query.livenessLow : 0
+    const tempoHigh = req.query.tempoHigh ? req.query.tempoHigh : 100
+    const tempoLow = req.query.tempoLow ? req.query.tempoLow : 0
+    const valenceHigh = req.query.valenceHigh ? req.query.valenceHigh : 100
+    const valenceLow = req.query.valenceLow ? req.query.valenceLow : 0
+    
+    connection.query(
+        // query
+        `SELECT s.song_id, s.title, s.album
+        FROM Song s
+        WHERE       s.title LIKE '%${name}%' 
+                AND s.danceability >= ${danceLow}
+                AND s.danceability <= ${danceHigh}
+                AND s.energy >= ${energyLow}
+                AND s.energy <= ${energyHigh}
+                AND s.liveness >= ${livenessLow}
+                AND s.liveness <= ${livenessHigh}
+                AND s.tempo >= ${tempoLow}
+                AND s.tempo <= ${tempoHigh}
+                AND s.valence >= ${valenceLow}
+                AND s.valence <= ${valenceHigh}
+        ORDER BY s.title
+        LIMIT ${(page-1)*pagesize}, ${pagesize}`, 
+        // callback
+        function (error, results, fields) {
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            } else if (results) {
+                res.json({ results: results })
+            }
+        }
+    );
+}
+
 // ===========================================================================
 // EXPORTS
 // ===========================================================================
@@ -188,5 +237,6 @@ module.exports = {
     all_artists,
     search_artists,
     get_artist_by_id,
-    all_songs
+    all_songs,
+    search_songs
 }
