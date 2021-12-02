@@ -89,64 +89,45 @@ function all_artists(req, res) {
                 res.json({ results: results })
             }
         }
-        );
-    }
-    function test_db_query(req, res) {
+    );
+}
+
+function get_artist_by_id(req, res) {
+    // if id was passed in
+    if (req.query.id) {
+        // get id
+        const artist_id = req.query.id
         
-        if (req.query.id) {
-            
-            // get any req params
-            const artist_id = req.query.id
-            
-            connection.query(
-                // query
-                `SELECT *  
-                FROM Artist a
-                WHERE a.artist_id = "${artist_id}"`, 
-                // callback
-                function (error, results, fields) {
-                    if (error) {
-                        console.log(error)
-                        res.json({ error: error })
-                    } else if (results) {
-                        res.json({ results: results })
-                    }
-                }
-                );
-                
-            } else {
-                // Select top 10 popular artists whose genre is hip hop
         connection.query(
             // query
             `SELECT *  
             FROM Artist a
-            WHERE artist_id IN (
-                SELECT artist_id
-                FROM ArtistGenre
-                WHERE genre = 'hip hop'
-                )
-                ORDER BY popularity DESC
-                LIMIT 10;`, 
-                // callback
-                function (error, results, fields) {
-                    if (error) {
-                        console.log(error)
-                        res.json({ error: error })
-                    } else if (results) {
-                        res.json({ results: results })
-                    }
+            WHERE a.artist_id = "${artist_id}"`, 
+            // callback
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
                 }
-                );
             }
-        }
+        );
+    // else id was not passed in
+    } else {
+        // return an empty array
+        res.json({ results: [] })
+    }
+}
 
-        // ------------------------------- Song Routes -----------------------------
-        
-        // ===========================================================================
-        // EXPORTS
-        // ===========================================================================
+// ------------------------------- Song Routes -----------------------------
+
+// ===========================================================================
+// EXPORTS
+// ===========================================================================
 module.exports = {
     hello,
     test_db_query,
-    all_artists
+    all_artists,
+    get_artist_by_id
 }
