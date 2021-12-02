@@ -30,6 +30,7 @@ app.get("/search/artists", routes.search_artists);
 app.get("/find/artist", routes.get_artist_by_id);
 app.get("/all/songs", routes.all_songs);
 app.get("/search/songs", routes.search_songs);
+app.get("/find/song", routes.get_song_by_id);
 
 // ===========================================================================
 // LISTENER

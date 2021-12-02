@@ -228,6 +228,34 @@ function search_songs(req, res) {
     );
 }
 
+function get_song_by_id(req, res) {
+    // if id was passed in
+    if (req.query.id) {
+        // get id
+        const song_id = req.query.id
+        
+        connection.query(
+            // query
+            `SELECT *  
+            FROM Song s
+            WHERE s.song_id = "${song_id}"`, 
+            // callback
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    // else id was not passed in
+    } else {
+        // return an empty array
+        res.json({ results: [] })
+    }
+}
+
 // ===========================================================================
 // EXPORTS
 // ===========================================================================
@@ -238,5 +266,6 @@ module.exports = {
     search_artists,
     get_artist_by_id,
     all_songs,
-    search_songs
+    search_songs,
+    get_song_by_id
 }
