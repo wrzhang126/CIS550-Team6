@@ -78,7 +78,40 @@ function all_artists(req, res) {
         // query
         `SELECT artist_id, name, popularity
         FROM Artist a
-        ORDER BY name
+        ORDER BY a.name
+        LIMIT ${(page-1)*pagesize}, ${pagesize}`, 
+        // callback
+        function (error, results, fields) {
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            } else if (results) {
+                res.json({ results: results })
+            }
+        }
+    );
+}
+
+function search_artists(req, res) {
+    
+    // get pagesize from query parameter; defualt 100
+    const pagesize = req.query.pagesize ? req.query.pagesize : 100
+    // get page number; defualt 1
+    const page = req.query.page ? req.query.page : 1
+    // get name prameter; default empty string
+    const name = req.query.name ? req.query.name : ""
+    // get popularity prameters; default 0 and 100 respectively
+    const popularityHigh = req.query.popularityHigh ? req.query.popularityHigh : 100
+    const popularityLow = req.query.popularityLow ? req.query.popularityLow : 0
+    
+    connection.query(
+        // query
+        `SELECT artist_id, name, popularity
+        FROM Artist a
+        WHERE       a.name LIKE '%${name}%' 
+                AND a.popularity >= ${popularityLow}
+                AND a.popularity <= ${popularityHigh}
+        ORDER BY a.popularity DESC, a.name
         LIMIT ${(page-1)*pagesize}, ${pagesize}`, 
         // callback
         function (error, results, fields) {
@@ -129,5 +162,6 @@ module.exports = {
     hello,
     test_db_query,
     all_artists,
+    search_artists,
     get_artist_by_id
 }
