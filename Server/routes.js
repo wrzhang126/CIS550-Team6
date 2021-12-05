@@ -63,11 +63,64 @@ function test_db_query(req, res) {
         );
     }
 }
-
+function get_song_by_id(req, res) {
+    // if id was passed in
+    if (req.query.id) {
+        // get id
+        const song_id = req.query.id
+        
+        connection.query(
+            // query
+            `SELECT *  
+            FROM Song s
+            WHERE s.song_id = "${song_id}"`, 
+            // callback
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    // else id was not passed in
+    } else {
+        // return an empty array
+        res.json({ results: [] })
+    }
+}
+function all_songs(req, res) {
+    
+    // get pagesize from query parameter; if no pagesize was given set value to 10
+    const pagesize = req.query.pagesize ? req.query.pagesize : 100
+    // get page number; if no page number was given set value to 1
+    const page = req.query.page ? req.query.page : 1
+    
+    connection.query(
+        // query
+        `SELECT s.song_id, s.title, s.album
+        FROM Song s
+        ORDER BY s.title
+        LIMIT ${(page-1)*pagesize}, ${pagesize}`, 
+        // callback
+        function (error, results, fields) {
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            } else if (results) {
+                res.json({ results: results })
+            }
+        }
+    );
+}
 // ===========================================================================
 // EXPORTS
 // ===========================================================================
 module.exports = {
     hello,
-    test_db_query
+    test_db_query,
+    get_song_by_id,
+    all_songs
+    
 }
