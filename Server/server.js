@@ -25,6 +25,8 @@ app.use(cors({origin: '*'}));
 // ===========================================================================
 app.get("/", routes.hello);
 app.get("/artist", routes.test_db_query);
+app.get("/songs", routes.all_songs);
+app.get("/song", routes.get_song_by_id);
 
 // ===========================================================================
 // LISTENER
