@@ -1,5 +1,6 @@
 import Navigationbar from './Navbar';
 import Filter from './Filter';
+import { getAllSongs, getSong } from '../fetcher'
 import React from 'react';
 import { Form, FormInput, FormGroup, Button, Card, CardBody, CardTitle, Progress } from "shards-react";
 import './Filter.css';
@@ -21,40 +22,53 @@ const { Column, ColumnGroup } = Table;
 const songColumns = [
   {
     title: 'id',
-    dataIndex: 'Id',
-    key: 'id'
+    dataIndex: 'song_id',
+    key: 'song_id',
+    render: (text, row) => <a href={`/songs?id=${row.song_id}`}>{text}</a>
   },
   {
     title: 'Title',
     dataIndex: 'title',
-    key: 'title'
+    key: 'title',
+    sorter : (a, b) => a.title.localeCompare(b.title)
   },
   {
-    title: 'Artist',
-    dataIndex: 'Artist',
-    key: 'Artist'
+    title: 'album_id',
+    dataIndex: 'album_id',
+    key: 'album_id'
   },
   {
     title: 'Album',
-    dataIndex: 'Album',
-    key: 'Album'
+    dataIndex: 'album',
+    key: 'album'
   },
   {
     title: 'Release Date',
     dataIndex: 'release_date',
     key: 'release_date'
-  },
+  }
 ]
 class SearchBySongPage extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-        selectedSongDetail : {"loudness" : 0.5, "danceability" : 0.3, "tempo" : 0.6, "energy" : 0.8, "liveness" : 0.4},
-        songsResults : [
-          {"Id" : "abcde", "title" : "Shape of You", "Artist" : "Ed Shereen", "Album" : "Shape of You", "release_date" : "2000-00-00"},
-          {"Id" : "abcde", "title" : "Poker Face", "Artist" : "Lady Gaga", "Album" : "The Remix", "release_date" : "2000-00-00"}
-      ]
+        selectedSongDetail : {"loudness" : -10, "danceability" : 0, "tempo" : 0, "energy" : 0, "liveness" : 0},
+        selectedSongInfo : null,
+        songsResults : [],
+        pagination : null,
+        selectedSongId: window.location.search ? window.location.search.substring(1).split('=')[1] : "0001Lyv0YTjkZSqzT4WkLy"
     }
+}
+
+componentDidMount() {
+  getAllSongs().then(res => {
+    console.log(res.results)
+    this.setState({ songsResults: res.results })
+  })
+  
+  getSong(this.state.selectedSongId).then(res => {
+    this.setState({selectedSongInfo: res.results[0]})
+  })
 }
   render(){
     return (
@@ -65,30 +79,29 @@ class SearchBySongPage extends React.Component {
             <Filter/>
         </div>
 
-        <div  style={{ width: '70vw', margin: '0 auto', marginTop: '2vh'}}>
+        <div style={{ width: '70vw', margin: '0 auto', marginTop: '2vh', padding: "10px 10px 10px 10px"}}>
           <h3>Songs</h3>
-          <Table id="filter-container" dataSource={this.state.songsResults} columns={songColumns}/>
+          <Table id="filter-container" dataSource={this.state.songsResults} columns={songColumns} pagination={{ pageSizeOptions:[5, 10], defaultPageSize: 5, showQuickJumper:true }}/>
             <Card id="filter-container">
               
               <CardBody>
                   <Row gutter='15' align='top' justify='top'>
                       <Col flex={2} style={{ textAlign: 'middle', margin: '30px 30px' }}>
-                      <h1>Poker Face</h1>
+                      <h1>{this.state.selectedSongInfo ? this.state.selectedSongInfo.title : ""}</h1>
                       <br></br>
-                      <h5>SongID : abcdefg</h5>
-                      <h5>Artists : Lady Gaga</h5>
-                      <h5>Album: The Remix</h5>
-                      <h5>Release Year: 2008</h5>
+                      <h5>SongID : {this.state.selectedSongInfo ? this.state.selectedSongInfo.song_id : ""}</h5>
+                      <h5>Album: {this.state.selectedSongInfo ? this.state.selectedSongInfo.album : ""}</h5>
+                      <h5>Release Date: {this.state.selectedSongInfo ? this.state.selectedSongInfo.release_date : ""}</h5>
                       </Col>
                       <Col>
                       <RadarChart
-                        data={[this.state.selectedSongDetail]}
+                        data={[this.state.selectedSongInfo ? this.state.selectedSongInfo : this.state.selectedSongDetail]}
                         tickFormat={t => wideFormat(t)}
                         startingAngle={0}
                         domains={[
-                            { name: 'Loudness', domain: [0, 1], getValue: d => d.loudness },
+                            { name: 'Loudness', domain: [-10, 8], getValue: d => d.loudness ? d.loudness : 0 },
                             { name: 'Danceability', domain: [0, 1], getValue: d => d.danceability },
-                            { name: 'Tempo', domain: [0, 1], getValue: d => d.tempo },
+                            { name: 'Tempo', domain: [0, 10], getValue: d => d.tempo },
                             { name: 'Liveness', domain: [0, 1], getValue: d => d.liveness},
                             { name: 'Energy', domain: [0, 1], getValue: d => d.energy },
                         ]}
