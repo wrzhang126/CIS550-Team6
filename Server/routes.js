@@ -99,10 +99,10 @@ function all_songs(req, res) {
     
     connection.query(
         // query
-        `SELECT s.song_id, s.title, s.album
+        `SELECT *
         FROM Song s
         ORDER BY s.title
-        LIMIT ${(page-1)*pagesize}, ${pagesize}`, 
+        LIMIT 0, 100`, 
         // callback
         function (error, results, fields) {
             if (error) {
