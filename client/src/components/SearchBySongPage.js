@@ -1,6 +1,6 @@
 import Navigationbar from './Navbar';
 import Filter from './Filter';
-import { getAllSongs, getSong } from '../fetcher'
+import { getAllSongs, getSong, getSongSearch } from '../fetcher'
 import React from 'react';
 import { Form, FormInput, FormGroup, Button, Card, CardBody, CardTitle, Progress } from "shards-react";
 import './Filter.css';
@@ -43,9 +43,9 @@ const songColumns = [
     key: 'album'
   },
   {
-    title: 'Release Date',
-    dataIndex: 'release_date',
-    key: 'release_date'
+    title: 'Release Year',
+    dataIndex: 'year',
+    key: 'year'
   }
 ]
 class SearchBySongPage extends React.Component {
@@ -56,8 +56,38 @@ class SearchBySongPage extends React.Component {
         selectedSongInfo : null,
         songsResults : [],
         pagination : null,
-        selectedSongId: window.location.search ? window.location.search.substring(1).split('=')[1] : "0001Lyv0YTjkZSqzT4WkLy"
+        selectedSongId: window.location.search ? window.location.search.substring(1).split('=')[1] : "0001Lyv0YTjkZSqzT4WkLy",
+        nameQuery : '',
+        startYearQuery : '',
+        endYearQuery : '',
+        danceabilityLowQuery : 0,
+        danceabilityHighQuery : 1
+        
     }
+    this.handleNameQueryChange = this.handleNameQueryChange.bind(this)
+    this.handleStartYearQueryChange = this.handleStartYearQueryChange.bind(this)
+    this.handleEndYearQueryChange = this.handleEndYearQueryChange.bind(this)
+    this.handleDanceabilityChange = this.handleDanceabilityChange.bind(this)
+    this.updateSearchResults = this.updateSearchResults.bind(this)
+}
+handleNameQueryChange(event) {
+  this.setState({ nameQuery: event.target.value })
+}
+handleStartYearQueryChange(value){
+  this.setState({startYearQuery : value})
+}
+handleEndYearQueryChange(value){
+  this.setState({endYearQuery : value})
+}
+handleDanceabilityChange(value){
+  this.setState({ danceabilityLowQuery: value[0] })
+  this.setState({ danceabilityHighQuery: value[1] })
+}
+updateSearchResults() {
+
+  getSongSearch(this.state.nameQuery, this.state.startYearQuery, this.state.endYearQuery, null, null).then(res => {
+      this.setState({ songsResults: res.results })
+  })
 }
 
 componentDidMount() {
@@ -65,7 +95,7 @@ componentDidMount() {
     console.log(res.results)
     this.setState({ songsResults: res.results })
   })
-  
+
   getSong(this.state.selectedSongId).then(res => {
     this.setState({selectedSongInfo: res.results[0]})
   })
@@ -76,7 +106,46 @@ componentDidMount() {
         <Navigationbar/>
       <div id="main">
         <div id="sticky" style={{width: "20%", minWidth: "400px", padding: "10px 0px 0px 10px"}}>
-            <Filter/>
+          <div id="filter-container"  style={{margin: "auto", padding: "20px 0 10px 0"}}>
+            <Form style={{width: '90%',margin: 'auto' , padding:"0px 0px 10px 0px" }} className="d-flex">
+              <FormInput placeholder="Search by Song" value={this.state.nameQuery} onChange={this.handleNameQueryChange} />
+              <Button variant="outline-primary" onClick={this.updateSearchResults}>Search</Button>
+            </Form>
+            <div style={{width: '90%',textAlign: "center", margin: "auto"}}>
+              <div style={{fontWeight: 'bolder', textAlign: "center", color: "#0D6EFD"}}>Filter options</div>
+              <Form>
+                <div style={{ fontWeight: 'bold', textAlign: "left"}}> Release year range </div>
+                <FormGroup style={{padding:"10px 0px 10px 0px", justifyContent:"space-evenly"}} className="d-flex">
+                  <label>Start year: </label>
+                    <Select onChange={this.handleStartYearQueryChange} value={this.state.startYearQuery} style={{width: '25%'}} aria-label="Default select example">
+                      <Select.Option value = "1990" >1990</Select.Option>
+                      <Select.Option value = "1995">1995</Select.Option>
+                      <Select.Option value = "2000">2000</Select.Option>
+                      <Select.Option value = "2005">2005</Select.Option>
+                      <Select.Option value = "2010">2010</Select.Option>
+                      <Select.Option value = "2015">2015</Select.Option>
+                      <Select.Option value = "2020">2020</Select.Option>
+                    </Select>
+                  <label >End year: </label>
+                    <Select onChange={this.handleEndYearQueryChange} value={this.state.endYearQuery} style={{width: '25%' }} aria-label="Default select example">
+                      <Select.Option value = "1990" >1990</Select.Option>
+                      <Select.Option value = "1995">1995</Select.Option>
+                      <Select.Option value = "2000">2000</Select.Option>
+                      <Select.Option value = "2005">2005</Select.Option>
+                      <Select.Option value = "2010">2010</Select.Option>
+                      <Select.Option value = "2015">2015</Select.Option>
+                      <Select.Option value = "2020">2020</Select.Option>
+                    </Select>
+                </FormGroup>
+                <div style={{ fontWeight: 'bold', textAlign: "left"}}> Songs attributes </div>
+                <FormGroup style={{width : '90%', margin : "auto"}}>
+                  <label> Danceability</label>
+                  <Slider range defaultValue={[0, 1]} onChange={this.handleDanceabilityChange}/>
+                </FormGroup>
+              </Form>
+            </div>
+          </div>
+          
         </div>
 
         <div style={{ width: '70vw', margin: '0 auto', marginTop: '2vh', padding: "10px 10px 10px 10px"}}>
@@ -91,7 +160,7 @@ componentDidMount() {
                       <br></br>
                       <h5>SongID : {this.state.selectedSongInfo ? this.state.selectedSongInfo.song_id : ""}</h5>
                       <h5>Album: {this.state.selectedSongInfo ? this.state.selectedSongInfo.album : ""}</h5>
-                      <h5>Release Date: {this.state.selectedSongInfo ? this.state.selectedSongInfo.release_date : ""}</h5>
+                      <h5>Release Year: {this.state.selectedSongInfo ? this.state.selectedSongInfo.year : ""}</h5>
                       </Col>
                       <Col>
                       <RadarChart
