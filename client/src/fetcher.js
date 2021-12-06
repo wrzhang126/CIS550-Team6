@@ -11,7 +11,14 @@ const getSong = async (id) => {
     })
     return res.json()
 }
+const getSongSearch = async (name, startYear, endYear, page, pagesize) => {
+    var res = await fetch(`http://${config.server_host}:${config.server_port}/search/songs?name=${name}&startYear=${startYear}&endYear=${endYear}&page=${page}&pagesize=${pagesize}`, {
+        method: 'GET',
+    })
+    return res.json()
+}
 export{
     getAllSongs,
-    getSong
+    getSong,
+    getSongSearch
 }
