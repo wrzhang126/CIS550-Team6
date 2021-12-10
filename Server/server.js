@@ -25,6 +25,12 @@ app.use(cors({origin: '*'}));
 // ===========================================================================
 app.get("/", routes.hello);
 app.get("/artist", routes.test_db_query);
+app.get("/all/artists", routes.all_artists);
+app.get("/search/artists", routes.search_artists);
+app.get("/find/artist", routes.get_artist_by_id);
+app.get("/all/songs", routes.all_songs);
+app.get("/search/songs", routes.search_songs);
+app.get("/find/song", routes.get_song_by_id);
 app.get("/songs", routes.all_songs);
 app.get("/song", routes.get_song_by_id);
 app.get("/search/songs", routes.search_songs);
