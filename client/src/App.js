@@ -7,7 +7,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/searchbyartist" element={<SearchByArtistPage/>}/>
-          <Route path="/searchbysong" element={<SearchBySongPage/>}/>
+          <Route path="/songs" element={<SearchBySongPage/>}/>
         </Routes>
       </Router>
     </div>

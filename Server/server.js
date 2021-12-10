@@ -31,6 +31,12 @@ app.get("/find/artist", routes.get_artist_by_id);
 app.get("/all/songs", routes.all_songs);
 app.get("/search/songs", routes.search_songs);
 app.get("/find/song", routes.get_song_by_id);
+app.get("/songs", routes.all_songs);
+app.get("/song", routes.get_song_by_id);
+app.get("/search/songs", routes.search_songs);
+app.get("/rankings/Billboard", routes.search_billboard_ranking);
+app.get("/rankings/Spotify", routes.search_spotify_ranking);
+app.get("/awards/Grammy", routes.search_grammy_songs);
 
 // ===========================================================================
 // LISTENER
