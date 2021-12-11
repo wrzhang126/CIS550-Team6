@@ -65,7 +65,8 @@ function test_db_query(req, res) {
         );
     }
 }
-function get_song_by_id(req, res) {
+
+/*function get_song_by_id(req, res) {
     // if id was passed in
     if (req.query.id) {
         // get id
@@ -167,7 +168,7 @@ function search_songs(req, res) {
             }
         }
     );
-}
+}*/
 
 // ------------------------------- Ranking Routes -----------------------------
 
