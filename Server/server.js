@@ -28,6 +28,7 @@ app.get("/artist", routes.test_db_query);
 app.get("/all/artists", routes.all_artists);
 app.get("/search/artists", routes.search_artists);
 app.get("/find/artist", routes.get_artist_by_id);
+app.get("/find/artist/song", routes.get_songs_by_artistid);
 app.get("/all/songs", routes.all_songs);
 app.get("/search/songs", routes.search_songs);
 app.get("/find/song", routes.get_song_by_id);
@@ -37,6 +38,9 @@ app.get("/search/songs", routes.search_songs);
 app.get("/rankings/Billboard", routes.search_billboard_ranking);
 app.get("/rankings/Spotify", routes.search_spotify_ranking);
 app.get("/awards/Grammy", routes.search_grammy_songs);
+app.get("/rankings/Billboard/artist", routes.get_billboardsongs_by_artistid);
+app.get("/rankings/Spotify/artist", routes.get_spotifysongs_by_artistid);
+app.get("/awards/Grammy/artist", routes.get_grammysongs_by_artistid);
 
 // ===========================================================================
 // LISTENER
