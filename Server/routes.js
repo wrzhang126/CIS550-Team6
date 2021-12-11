@@ -170,364 +170,6 @@ function search_songs(req, res) {
     );
 }*/
 
-// ------------------------------- Ranking Routes -----------------------------
-
-function search_billboard_ranking(req, res) {
-
-    const pagesize = req.query.pagesize ? req.query.pagesize : 10
-    const page = req.query.page ? req.query.page : 1
-    // get name prameter; default empty string
-    const name = req.query.name ? req.query.name : ""
-    // get ranking parameters
-    const rankLow = req.query.rankLow ? req.query.rankLow : 0
-    const rankHigh = req.query.rankHigh ? req.query.rankHigh : 100
-
-
-    if (req.query.week && !isNaN(req.query.week)) {
-
-      const week = req.query.week
-
-      connection.query(
-          // query
-          `SELECT df.*, df2.title FROM
-          (SELECT * FROM BillboardRanking
-            WHERE week = '${week}'
-            AND ranking >= ${rankLow}
-            AND ranking <= ${rankHigh})df
-            JOIN (SELECT song_id, title FROM Song WHERE title LIKE '%${name}%') df2
-            ON df.song_id = df2.song_id
-           ORDER BY ranking`,
-          // callback
-          function (error, results, fields) {
-              if (error) {
-                  console.log(error)
-                  res.json({ error: error })
-              } else if (results) {
-                  res.json({ results: results })
-              }
-          }
-      );
-    }
-    else {
-
-      const offset = (page - 1) * pagesize
-
-      connection.query(
-          // query
-          `SELECT df.*, df2.title FROM
-          (SELECT * FROM BillboardRanking
-            WHERE ranking >= ${rankLow}
-            AND ranking <= ${rankHigh})df
-            JOIN (SELECT song_id, title FROM Song
-              WHERE title LIKE '%${name}%') df2
-            ON df.song_id = df2.song_id
-           ORDER BY week, ranking
-          LIMIT ${offset}, ${pagesize}`,
-          // callback
-          function (error, results, fields) {
-              if (error) {
-                  console.log(error)
-                  res.json({ error: error })
-              } else if (results) {
-                  res.json({ results: results })
-              }
-          }
-      );
-    }
-
-}
-
-function search_spotify_ranking(req, res) {
-
-    const pagesize = req.query.pagesize ? req.query.pagesize : 10
-    const page = req.query.page ? req.query.page : 1
-    // get name prameter; default empty string
-    const name = req.query.name ? req.query.name : ""
-    // get ranking parameters
-    const rankLow = req.query.rankLow ? req.query.rankLow : 0
-    const rankHigh = req.query.rankHigh ? req.query.rankHigh : 200
-
-
-    if (req.query.week && !isNaN(req.query.week)) {
-
-      const week = req.query.week
-
-      connection.query(
-          // query
-          `SELECT df.*, df2.title FROM
-          (SELECT * FROM SpotifyRanking
-            WHERE week = '${week}'
-            AND ranking >= ${rankLow}
-            AND ranking <= ${rankHigh})df
-            JOIN (SELECT song_id, title FROM Song WHERE title LIKE '%${name}%') df2
-            ON df.song_id = df2.song_id
-           ORDER BY ranking`,
-          // callback
-          function (error, results, fields) {
-              if (error) {
-                  console.log(error)
-                  res.json({ error: error })
-              } else if (results) {
-                  res.json({ results: results })
-              }
-          }
-      );
-    }
-    else {
-
-      const offset = (page - 1) * pagesize
-
-      connection.query(
-          // query
-          `SELECT df.*, df2.title FROM
-          (SELECT * FROM SpotifyRanking
-            WHERE ranking >= ${rankLow}
-            AND ranking <= ${rankHigh})df
-            JOIN (SELECT song_id, title FROM Song
-              WHERE title LIKE '%${name}%') df2
-            ON df.song_id = df2.song_id
-           ORDER BY week, ranking
-          LIMIT ${offset}, ${pagesize}`,
-          // callback
-          function (error, results, fields) {
-              if (error) {
-                  console.log(error)
-                  res.json({ error: error })
-              } else if (results) {
-                  res.json({ results: results })
-              }
-          }
-      );
-    }
-}
-
-function search_grammy_songs(req, res) {
-
-    const pagesize = req.query.pagesize ? req.query.pagesize : 10
-    const page = req.query.page ? req.query.page : 1
-    // get name prameter; default empty string
-    const name = req.query.name ? req.query.name : ""
-    // get ranking parameters
-    const award = req.query.award ? req.query.award : ""
-
-
-    if (req.query.year && !isNaN(req.query.year)) {
-
-      const year = req.query.year
-
-      connection.query(
-          // query
-          `SELECT df.*, df2.title FROM
-          (SELECT * FROM GrammyAwards
-            WHERE year = ${year}
-            AND award LIKE '%{award}%')df
-            JOIN (SELECT song_id, title FROM Song
-              WHERE title LIKE '%${name}%') df2
-            ON df.song_id = df2.song_id
-           ORDER BY year, award`,
-          // callback
-          function (error, results, fields) {
-              if (error) {
-                  console.log(error)
-                  res.json({ error: error })
-              } else if (results) {
-                  res.json({ results: results })
-              }
-          }
-      );
-    }
-    else{
-
-      const offset = (page - 1) * pagesize
-
-      connection.query(
-          // query
-          `SELECT df.*, df2.title FROM
-          (SELECT * FROM GrammyAwards
-            WHERE award LIKE '%{award}%')df
-            JOIN (SELECT song_id, title FROM Song
-              WHERE title LIKE '%${name}%') df2
-            ON df.song_id = df2.song_id
-           ORDER BY year, award
-          LIMIT ${offset}, ${pagesize}`,
-          // callback
-          function (error, results, fields) {
-              if (error) {
-                  console.log(error)
-                  res.json({ error: error })
-              } else if (results) {
-                  res.json({ results: results })
-              }
-          }
-      );
-    }
-}
-
-function get_billboardsongs_by_artistid(req, res) {
-    // if id was passed in
-    if (req.query.id) {
-
-        const artist_id = req.query.id
-
-        connection.query(
-            // query
-            `SELECT df2.artist_id, df2.artist, df2.latestweek, Song.* FROM
-              (SELECT df.* , Artist.name AS artist FROM
-              (SELECT DISTINCT BillboardRanking.song_id, MAX(BillboardRanking.week) as latestweek ,
-              SA.artist_id FROM BillboardRanking
-              JOIN SongArtist SA
-              ON BillboardRanking.song_id = SA.song_id
-              WHERE SA.artist_id = "${artist_id}"
-              GROUP BY BillboardRanking.song_id) df
-              JOIN Artist ON df.artist_id=Artist.artist_id) df2
-              JOIN Song ON Song.song_id=df2.song_id ORDER BY artist`,
-            // callback
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-    // else id was not passed in
-    } else {
-        // return an empty array
-        connection.query(
-            // query
-            `SELECT df2.artist_id, df2.artist, df2.latestweek, Song.* FROM
-            (SELECT df.* , Artist.name AS artist FROM
-            (SELECT DISTINCT BillboardRanking.song_id, MAX(BillboardRanking.week) as latestweek ,
-            SA.artist_id FROM BillboardRanking
-            JOIN SongArtist SA
-            ON BillboardRanking.song_id = SA.song_id
-            GROUP BY BillboardRanking.song_id) df
-            JOIN Artist ON df.artist_id=Artist.artist_id) df2
-            JOIN Song ON Song.song_id=df2.song_id ORDER BY artist`,
-            // callback
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-    }
-}
-
-function get_spotifysongs_by_artistid(req, res) {
-    // if id was passed in
-    if (req.query.id) {
-
-        const artist_id = req.query.id
-
-        connection.query(
-            // query
-            `SELECT df2.artist_id, df2.artist, df2.latestweek, Song.* FROM
-              (SELECT df.* , Artist.name AS artist FROM
-              (SELECT DISTINCT SpotifyRanking.song_id, MAX(SpotifyRanking.week) as latestweek ,
-              SA.artist_id FROM SpotifyRanking
-              JOIN SongArtist SA
-              ON SpotifyRanking.song_id = SA.song_id
-              WHERE SA.artist_id = "${artist_id}"
-              GROUP BY SpotifyRanking.song_id) df
-              JOIN Artist ON df.artist_id=Artist.artist_id) df2
-              JOIN Song ON Song.song_id=df2.song_id ORDER BY latestweek DESC`,
-            // callback
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-    // else id was not passed in
-    } else {
-        // return an empty array
-        connection.query(
-            // query
-            `SELECT df2.artist_id, df2.artist, df2.latestweek, Song.* FROM
-              (SELECT df.* , Artist.name AS artist FROM
-              (SELECT DISTINCT SpotifyRanking.song_id, MAX(SpotifyRanking.week) as latestweek ,
-              SA.artist_id FROM SpotifyRanking
-              JOIN SongArtist SA
-              ON SpotifyRanking.song_id = SA.song_id
-              GROUP BY SpotifyRanking.song_id) df
-              JOIN Artist ON df.artist_id=Artist.artist_id) df2
-              JOIN Song ON Song.song_id=df2.song_id ORDER BY artist`,
-            // callback
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-    }
-}
-
-function get_grammysongs_by_artistid(req, res) {
-    // if id was passed in
-    if (req.query.id) {
-
-        const artist_id = req.query.id
-
-        connection.query(
-            // query
-            `SELECT df2.*, Song.* FROM
-              (SELECT df.award, df.year, df.artist_id , Artist.name AS artist, df.song_id FROM
-              (SELECT GA.*,
-              SA.artist_id FROM GrammyAwards GA
-              JOIN SongArtist SA
-              WHERE SA.artist_id = "${artist_id}"
-              ON GA.song_id = SA.song_id) df
-              JOIN Artist ON df.artist_id=Artist.artist_id) df2
-              JOIN Song ON Song.song_id=df2.song_id ORDER BY artist
-              ORDER BY year DESC`,
-            // callback
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-    // else id was not passed in
-    } else {
-        // return an empty array
-        connection.query(
-            // query
-            `SELECT df2.*, Song.* FROM
-              (SELECT df.award, df.year, df.artist_id , Artist.name AS artist, df.song_id FROM
-              (SELECT GA.*,
-              SA.artist_id FROM GrammyAwards GA
-              JOIN SongArtist SA
-              ON GA.song_id = SA.song_id) df
-              JOIN Artist ON df.artist_id=Artist.artist_id) df2
-              JOIN Song ON Song.song_id=df2.song_id ORDER BY artist`,
-            // callback
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-    }
-}
-
-
 // ------------------------------- Artist Routes -----------------------------
 function all_artists(req, res) {
 
@@ -763,6 +405,467 @@ function get_song_by_id(req, res) {
     }
 }
 
+// ------------------------------- Ranking Routes -----------------------------
+
+function search_billboard_ranking(req, res) {
+
+    const pagesize = req.query.pagesize ? req.query.pagesize : 10
+    const page = req.query.page ? req.query.page : 1
+    // get name prameter; default empty string
+    const name = req.query.name ? req.query.name : ""
+    // get ranking parameters
+    const rankLow = req.query.rankLow ? req.query.rankLow : 0
+    const rankHigh = req.query.rankHigh ? req.query.rankHigh : 100
+
+
+    if (req.query.week && !isNaN(req.query.week)) {
+
+      const week = req.query.week
+
+      connection.query(
+          // query
+          `SELECT df.*, df2.title FROM
+          (SELECT * FROM BillboardRanking
+            WHERE week = '${week}'
+            AND ranking >= ${rankLow}
+            AND ranking <= ${rankHigh})df
+            JOIN (SELECT song_id, title FROM Song WHERE title LIKE '%${name}%') df2
+            ON df.song_id = df2.song_id
+           ORDER BY ranking`,
+          // callback
+          function (error, results, fields) {
+              if (error) {
+                  console.log(error)
+                  res.json({ error: error })
+              } else if (results) {
+                  res.json({ results: results })
+              }
+          }
+      );
+    }
+    else {
+
+      const offset = (page - 1) * pagesize
+
+      connection.query(
+          // query
+          `SELECT df.*, df2.title FROM
+          (SELECT * FROM BillboardRanking
+            WHERE ranking >= ${rankLow}
+            AND ranking <= ${rankHigh})df
+            JOIN (SELECT song_id, title FROM Song
+              WHERE title LIKE '%${name}%') df2
+            ON df.song_id = df2.song_id
+           ORDER BY week, ranking
+          LIMIT ${offset}, ${pagesize}`,
+          // callback
+          function (error, results, fields) {
+              if (error) {
+                  console.log(error)
+                  res.json({ error: error })
+              } else if (results) {
+                  res.json({ results: results })
+              }
+          }
+      );
+    }
+
+}
+
+function search_spotify_ranking(req, res) {
+
+    const pagesize = req.query.pagesize ? req.query.pagesize : 10
+    const page = req.query.page ? req.query.page : 1
+    // get name prameter; default empty string
+    const name = req.query.name ? req.query.name : ""
+
+    // get ranking parameters
+    const rankLow = req.query.rankLow ? req.query.rankLow : 0
+    const rankHigh = req.query.rankHigh ? req.query.rankHigh : 200
+
+
+    if (req.query.week && !isNaN(req.query.week)) {
+
+      const week = req.query.week
+
+      connection.query(
+          // query
+          `SELECT df.*, df2.title FROM
+          (SELECT * FROM SpotifyRanking
+            WHERE week = '${week}'
+            AND ranking >= ${rankLow}
+            AND ranking <= ${rankHigh})df
+            JOIN (SELECT song_id, title FROM Song WHERE title LIKE '%${name}%') df2
+            ON df.song_id = df2.song_id
+           ORDER BY ranking`,
+          // callback
+          function (error, results, fields) {
+              if (error) {
+                  console.log(error)
+                  res.json({ error: error })
+              } else if (results) {
+                  res.json({ results: results })
+              }
+          }
+      );
+    }
+    else {
+
+      const offset = (page - 1) * pagesize
+
+      connection.query(
+          // query
+          `SELECT df.*, df2.title FROM
+          (SELECT * FROM SpotifyRanking
+            WHERE ranking >= ${rankLow}
+            AND ranking <= ${rankHigh})df
+            JOIN (SELECT song_id, title FROM Song
+              WHERE title LIKE '%${name}%') df2
+            ON df.song_id = df2.song_id
+           ORDER BY week, ranking
+          LIMIT ${offset}, ${pagesize}`,
+          // callback
+          function (error, results, fields) {
+              if (error) {
+                  console.log(error)
+                  res.json({ error: error })
+              } else if (results) {
+                  res.json({ results: results })
+              }
+          }
+      );
+    }
+}
+
+function search_grammy_songs(req, res) {
+
+    const pagesize = req.query.pagesize ? req.query.pagesize : 10
+    const page = req.query.page ? req.query.page : 1
+    // get name prameter; default empty string
+    const name = req.query.name ? req.query.name : ""
+    // get ranking parameters
+    const award = req.query.award ? req.query.award : ""
+
+
+    if (req.query.year && !isNaN(req.query.year)) {
+
+      const year = req.query.year
+
+      connection.query(
+          // query
+          `SELECT df.*, df2.title FROM
+          (SELECT * FROM GrammyAwards
+            WHERE year = ${year}
+            AND award LIKE '%{award}%')df
+            JOIN (SELECT song_id, title FROM Song
+              WHERE title LIKE '%${name}%') df2
+            ON df.song_id = df2.song_id
+           ORDER BY year, award`,
+          // callback
+          function (error, results, fields) {
+              if (error) {
+                  console.log(error)
+                  res.json({ error: error })
+              } else if (results) {
+                  res.json({ results: results })
+              }
+          }
+      );
+    }
+    else{
+
+      const offset = (page - 1) * pagesize
+
+      connection.query(
+          // query
+          `SELECT df.*, df2.title FROM
+          (SELECT * FROM GrammyAwards
+            WHERE award LIKE '%{award}%')df
+            JOIN (SELECT song_id, title FROM Song
+              WHERE title LIKE '%${name}%') df2
+            ON df.song_id = df2.song_id
+           ORDER BY year, award
+          LIMIT ${offset}, ${pagesize}`,
+          // callback
+          function (error, results, fields) {
+              if (error) {
+                  console.log(error)
+                  res.json({ error: error })
+              } else if (results) {
+                  res.json({ results: results })
+              }
+          }
+      );
+    }
+}
+
+function get_billboardsongs_by_artistid(req, res) {
+
+    const pagesize = req.query.pagesize ? req.query.pagesize : 10
+    const page = req.query.page ? req.query.page : 1
+    // get name prameter; default empty string
+    const name = req.query.name ? req.query.name : ""
+
+    // if id was passed in
+    if (req.query.id) {
+
+        const artist_id = req.query.id
+
+        connection.query(
+            // query
+            `SELECT df2.artist_id, df2.artist, df2.latestweek, Song.* FROM
+              (SELECT df.* , Artist.name AS artist FROM
+              (SELECT DISTINCT BillboardRanking.song_id, MAX(BillboardRanking.week) as latestweek ,
+              SA.artist_id FROM BillboardRanking
+              JOIN SongArtist SA
+              ON BillboardRanking.song_id = SA.song_id
+              WHERE SA.artist_id = "${artist_id}"
+              GROUP BY BillboardRanking.song_id) df
+              JOIN Artist ON df.artist_id=Artist.artist_id) df2
+              JOIN Song ON Song.song_id=df2.song_id
+              WHERE Song.title LIKE '${name}'
+              ORDER BY artist`,
+            // callback
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    // else id was not passed in
+    } else {
+        // return an empty array
+        connection.query(
+            // query
+            `SELECT df2.artist_id, df2.artist, df2.latestweek, Song.* FROM
+            (SELECT df.* , Artist.name AS artist FROM
+            (SELECT DISTINCT BillboardRanking.song_id, MAX(BillboardRanking.week) as latestweek ,
+            SA.artist_id FROM BillboardRanking
+            JOIN SongArtist SA
+            ON BillboardRanking.song_id = SA.song_id
+            GROUP BY BillboardRanking.song_id) df
+            JOIN Artist ON df.artist_id=Artist.artist_id) df2
+            JOIN Song ON Song.song_id=df2.song_id
+            WHERE Song.title LIKE '${name}'
+            ORDER BY artist
+            LIMIT ${offset}, ${pagesize}`,
+            // callback
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    }
+}
+
+function get_spotifysongs_by_artistid(req, res) {
+
+    const pagesize = req.query.pagesize ? req.query.pagesize : 10
+    const page = req.query.page ? req.query.page : 1
+    // get name prameter; default empty string
+    const name = req.query.name ? req.query.name : ""
+
+
+    // if id was passed in
+    if (req.query.id) {
+
+        const artist_id = req.query.id
+
+        connection.query(
+            // query
+            `SELECT df2.artist_id, df2.artist, df2.latestweek, Song.* FROM
+              (SELECT df.* , Artist.name AS artist FROM
+              (SELECT DISTINCT SpotifyRanking.song_id, MAX(SpotifyRanking.week) as latestweek ,
+              SA.artist_id FROM SpotifyRanking
+              JOIN SongArtist SA
+              ON SpotifyRanking.song_id = SA.song_id
+              WHERE SA.artist_id = "${artist_id}"
+              GROUP BY SpotifyRanking.song_id) df
+              JOIN Artist ON df.artist_id=Artist.artist_id) df2
+              JOIN Song ON Song.song_id=df2.song_id
+              WHERE Song.title LIKE '${name}'
+              ORDER BY latestweek DESC`,
+            // callback
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    // else id was not passed in
+    } else {
+        // return an empty array
+        connection.query(
+            // query
+            `SELECT df2.artist_id, df2.artist, df2.latestweek, Song.* FROM
+              (SELECT df.* , Artist.name AS artist FROM
+              (SELECT DISTINCT SpotifyRanking.song_id, MAX(SpotifyRanking.week) as latestweek ,
+              SA.artist_id FROM SpotifyRanking
+              JOIN SongArtist SA
+              ON SpotifyRanking.song_id = SA.song_id
+              GROUP BY SpotifyRanking.song_id) df
+              JOIN Artist ON df.artist_id=Artist.artist_id) df2
+              JOIN Song ON Song.song_id=df2.song_id
+              WHERE Song.title LIKE '${name}'
+              ORDER BY artist
+              LIMIT ${offset}, ${pagesize}`,
+            // callback
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    }
+}
+
+function get_grammysongs_by_artistid(req, res) {
+
+    const pagesize = req.query.pagesize ? req.query.pagesize : 10
+    const page = req.query.page ? req.query.page : 1
+    // get name prameter; default empty string
+    const name = req.query.name ? req.query.name : ""
+
+    // if id was passed in
+    if (req.query.id) {
+
+        const artist_id = req.query.id
+
+        connection.query(
+            // query
+            `SELECT df2.*, Song.* FROM
+              (SELECT df.award, df.year, df.artist_id , Artist.name AS artist, df.song_id FROM
+              (SELECT GA.*,
+              SA.artist_id FROM GrammyAwards GA
+              JOIN SongArtist SA
+              WHERE SA.artist_id = "${artist_id}"
+              ON GA.song_id = SA.song_id) df
+              JOIN Artist ON df.artist_id=Artist.artist_id) df2
+              JOIN Song ON Song.song_id=df2.song_id
+              WHERE Song.title LIKE '${name}'
+              ORDER BY year DESC`,
+            // callback
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    // else id was not passed in
+    } else {
+        // return an empty array
+        connection.query(
+            // query
+            `SELECT df2.*, Song.* FROM
+              (SELECT df.award, df.year, df.artist_id , Artist.name AS artist, df.song_id FROM
+              (SELECT GA.*,
+              SA.artist_id FROM GrammyAwards GA
+              JOIN SongArtist SA
+              ON GA.song_id = SA.song_id) df
+              JOIN Artist ON df.artist_id=Artist.artist_id) df2
+              JOIN Song ON Song.song_id=df2.song_id
+              ORDER BY artist
+              LIMIT ${offset}, ${pagesize}`,
+            // callback
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    }
+}
+
+
+// ------------------------------- Statistics Routes -----------------------------
+
+
+function get_awardstats_by_artist(req, res) {
+
+    const pagesize = req.query.pagesize ? req.query.pagesize : 10
+    const page = req.query.page ? req.query.page : 1
+    // get name prameter; default empty string
+    const artistname = req.query.name ? req.query.name : ""
+
+
+    // if id was passed in
+    if (req.query.artistname && !isNan(req.query.artisname)) {
+
+        const artist_id = req.query.id
+
+        connection.query(
+            // query
+            `SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs ,
+            SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify ,
+            SUM(grammyTag) AS num_songs_grammy  FROM (SELECT df2.*,
+            CASE WHEN GA.song_id IS NULL THEN 0 ELSE 1 END AS grammyTag
+            FROM (SELECT df.*, CASE WHEN SP.song_id IS NULL THEN 0 ELSE 1 END AS spotifyTag
+            FROM (SELECT SA.*, CASE WHEN BR.song_id IS NULL THEN 0 ELSE 1 END AS billboardTag FROM SongArtist SA
+            LEFT  JOIN (SELECT DISTINCT song_id FROM  BillboardRanking)BR on SA.song_id = BR.song_id) df
+            LEFT JOIN (SELECT DISTINCT song_id FROM  SpotifyRanking)SP on SP.song_id = df.song_id)  df2
+            LEFT JOIN (SELECT DISTINCT song_id FROM GrammyAwards) GA on GA.song_id = df2.song_id) df3
+            JOIN Artist ON Artist.artist_id = df3.artist_id
+            WHERE artist LIKE '${artistname}'
+            GROUP BY (df3.artist_id)`,
+            // callback
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    // else id was not passed in
+    } else {
+        // return an empty array
+        connection.query(
+            // query
+            `SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs ,
+            SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify ,
+            SUM(grammyTag) AS num_songs_grammy  FROM (SELECT df2.*,
+            CASE WHEN GA.song_id IS NULL THEN 0 ELSE 1 END AS grammyTag
+            FROM (SELECT df.*, CASE WHEN SP.song_id IS NULL THEN 0 ELSE 1 END AS spotifyTag
+            FROM (SELECT SA.*, CASE WHEN BR.song_id IS NULL THEN 0 ELSE 1 END AS billboardTag FROM SongArtist SA
+            LEFT  JOIN (SELECT DISTINCT song_id FROM  BillboardRanking)BR on SA.song_id = BR.song_id) df
+            LEFT JOIN (SELECT DISTINCT song_id FROM  SpotifyRanking)SP on SP.song_id = df.song_id)  df2
+            LEFT JOIN (SELECT DISTINCT song_id FROM GrammyAwards) GA on GA.song_id = df2.song_id) df3
+            JOIN Artist ON Artist.artist_id = df3.artist_id
+            GROUP BY (df3.artist_id)
+            ORDER BY artist
+            LIMIT ${offset}, ${pagesize}`,
+            // callback
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    }
+}
 
 
 
