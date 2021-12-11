@@ -169,8 +169,12 @@ function search_songs(req, res) {
     );
 }
 
+// ------------------------------- Ranking Routes -----------------------------
+
 function search_billboard_ranking(req, res) {
 
+    const pagesize = req.query.pagesize ? req.query.pagesize : 10
+    const page = req.query.page ? req.query.page : 1
     // get name prameter; default empty string
     const name = req.query.name ? req.query.name : ""
     // get ranking parameters
@@ -203,10 +207,9 @@ function search_billboard_ranking(req, res) {
           }
       );
     }
-    else if(req.query.page && !isNaN(req.query.page)){
+    else {
 
-      const pagesize = req.query.pagesize ? req.query.pagesize : 10
-      const offset = (req.query.page - 1) * pagesize
+      const offset = (page - 1) * pagesize
 
       connection.query(
           // query
@@ -235,6 +238,8 @@ function search_billboard_ranking(req, res) {
 
 function search_spotify_ranking(req, res) {
 
+    const pagesize = req.query.pagesize ? req.query.pagesize : 10
+    const page = req.query.page ? req.query.page : 1
     // get name prameter; default empty string
     const name = req.query.name ? req.query.name : ""
     // get ranking parameters
@@ -267,10 +272,9 @@ function search_spotify_ranking(req, res) {
           }
       );
     }
-    else if(req.query.page && !isNaN(req.query.page)){
+    else {
 
-      const pagesize = req.query.pagesize ? req.query.pagesize : 100
-      const offset = (req.query.page - 1) * pagesize
+      const offset = (page - 1) * pagesize
 
       connection.query(
           // query
@@ -298,6 +302,8 @@ function search_spotify_ranking(req, res) {
 
 function search_grammy_songs(req, res) {
 
+    const pagesize = req.query.pagesize ? req.query.pagesize : 10
+    const page = req.query.page ? req.query.page : 1
     // get name prameter; default empty string
     const name = req.query.name ? req.query.name : ""
     // get ranking parameters
@@ -329,10 +335,9 @@ function search_grammy_songs(req, res) {
           }
       );
     }
-    else if(req.query.page && !isNaN(req.query.page)){
+    else{
 
-      const pagesize = req.query.pagesize ? req.query.pagesize : 100
-      const offset = (req.query.page - 1) * pagesize
+      const offset = (page - 1) * pagesize
 
       connection.query(
           // query
@@ -360,18 +365,18 @@ function search_grammy_songs(req, res) {
 
 // ------------------------------- Artist Routes -----------------------------
 function all_artists(req, res) {
-    
+
     // get pagesize from query parameter; if no pagesize was given set value to 10
     const pagesize = req.query.pagesize ? req.query.pagesize : 100
     // get page number; if no page number was given set value to 1
     const page = req.query.page ? req.query.page : 1
-    
+
     connection.query(
         // query
         `SELECT a.artist_id, a.name, a.popularity
         FROM Artist a
         ORDER BY a.name
-        LIMIT ${(page-1)*pagesize}, ${pagesize}`, 
+        LIMIT ${(page-1)*pagesize}, ${pagesize}`,
         // callback
         function (error, results, fields) {
             if (error) {
@@ -385,7 +390,7 @@ function all_artists(req, res) {
 }
 
 function search_artists(req, res) {
-    
+
     // get pagesize from query parameter; defualt 100
     const pagesize = req.query.pagesize ? req.query.pagesize : 100
     // get page number; defualt 1
@@ -395,16 +400,16 @@ function search_artists(req, res) {
     // get popularity prameters; default 0 and 100 respectively
     const popularityHigh = req.query.popularityHigh ? req.query.popularityHigh : 100
     const popularityLow = req.query.popularityLow ? req.query.popularityLow : 0
-    
+
     connection.query(
         // query
         `SELECT a.artist_id, a.name, a.popularity
         FROM Artist a
-        WHERE       a.name LIKE '%${name}%' 
+        WHERE       a.name LIKE '%${name}%'
                 AND a.popularity >= ${popularityLow}
                 AND a.popularity <= ${popularityHigh}
         ORDER BY a.popularity DESC, a.name
-        LIMIT ${(page-1)*pagesize}, ${pagesize}`, 
+        LIMIT ${(page-1)*pagesize}, ${pagesize}`,
         // callback
         function (error, results, fields) {
             if (error) {
@@ -422,12 +427,12 @@ function get_artist_by_id(req, res) {
     if (req.query.id) {
         // get id
         const artist_id = req.query.id
-        
+
         connection.query(
             // query
-            `SELECT *  
+            `SELECT *
             FROM Artist a
-            WHERE a.artist_id = "${artist_id}"`, 
+            WHERE a.artist_id = "${artist_id}"`,
             // callback
             function (error, results, fields) {
                 if (error) {
@@ -447,18 +452,18 @@ function get_artist_by_id(req, res) {
 
 // ------------------------------- Song Routes -----------------------------
 function all_songs(req, res) {
-    
+
     // get pagesize from query parameter; if no pagesize was given set value to 10
     const pagesize = req.query.pagesize ? req.query.pagesize : 100
     // get page number; if no page number was given set value to 1
     const page = req.query.page ? req.query.page : 1
-    
+
     connection.query(
         // query
         `SELECT s.song_id, s.title, s.album
         FROM Song s
         ORDER BY s.title
-        LIMIT ${(page-1)*pagesize}, ${pagesize}`, 
+        LIMIT ${(page-1)*pagesize}, ${pagesize}`,
         // callback
         function (error, results, fields) {
             if (error) {
@@ -472,7 +477,7 @@ function all_songs(req, res) {
 }
 
 function search_songs(req, res) {
-    
+
     // get pagesize from query parameter; defualt 100
     const pagesize = req.query.pagesize ? req.query.pagesize : 100
     // get page number; defualt 1
@@ -490,12 +495,12 @@ function search_songs(req, res) {
     const tempoLow = req.query.tempoLow ? req.query.tempoLow : 0
     const valenceHigh = req.query.valenceHigh ? req.query.valenceHigh : 100
     const valenceLow = req.query.valenceLow ? req.query.valenceLow : 0
-    
+
     connection.query(
         // query
         `SELECT s.song_id, s.title, s.album
         FROM Song s
-        WHERE       s.title LIKE '%${name}%' 
+        WHERE       s.title LIKE '%${name}%'
                 AND s.danceability >= ${danceLow}
                 AND s.danceability <= ${danceHigh}
                 AND s.energy >= ${energyLow}
@@ -507,7 +512,7 @@ function search_songs(req, res) {
                 AND s.valence >= ${valenceLow}
                 AND s.valence <= ${valenceHigh}
         ORDER BY s.title
-        LIMIT ${(page-1)*pagesize}, ${pagesize}`, 
+        LIMIT ${(page-1)*pagesize}, ${pagesize}`,
         // callback
         function (error, results, fields) {
             if (error) {
@@ -525,12 +530,12 @@ function get_song_by_id(req, res) {
     if (req.query.id) {
         // get id
         const song_id = req.query.id
-        
+
         connection.query(
             // query
-            `SELECT *  
+            `SELECT *
             FROM Song s
-            WHERE s.song_id = "${song_id}"`, 
+            WHERE s.song_id = "${song_id}"`,
             // callback
             function (error, results, fields) {
                 if (error) {
@@ -567,4 +572,3 @@ module.exports = {
     all_songs,
     search_songs
 }
-
