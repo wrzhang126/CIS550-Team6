@@ -257,51 +257,6 @@ function get_artist_by_id(req, res) {
     }
 }
 
-function get_songs_by_artistid(req, res) {
-    // if id was passed in
-    if (req.query.id) {
-        const artist_id = req.query.id
-
-        connection.query(
-            // query
-            `SELECT Artist.name AS artist , df.* FROM
-            (SELECT SA.artist_id, Song.* FROM SongArtist SA
-              JOIN Song on SA.song_id=Song.song_id) df
-              JOIN Artist ON df.artist_id
-              WHERE Artist.artist_id = "${artist_id}"`,
-            // callback
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-    // else id was not passed in
-    } else {
-        // return an empty array
-        connection.query(
-            // query
-            `SELECT Artist.name AS artist , df.* FROM
-            (SELECT SA.artist_id, Song.* FROM SongArtist SA
-              JOIN Song on SA.song_id=Song.song_id) df
-              JOIN Artist ON df.artist_id
-              ORDER BY artist`,
-            // callback
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-    }
-}
-
 // ------------------------------- Song Routes -----------------------------
 function all_songs(req, res) {
 
@@ -537,6 +492,79 @@ function search_spotify_ranking(req, res) {
     }
 }
 
+
+
+// ------------------------------- Recommendation Routes -----------------------------
+
+
+function get_awardstats_by_artist(req, res) {
+
+    const pagesize = req.query.pagesize ? req.query.pagesize : 10
+    const page = req.query.page ? req.query.page : 1
+    // get name prameter; default empty string
+    const artistname = req.query.name ? req.query.name : ""
+
+
+    // if id was passed in
+    if (req.query.artistname && !isNan(req.query.artisname)) {
+
+        const artist_id = req.query.id
+
+        connection.query(
+            // query
+            `SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs ,
+            SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify ,
+            SUM(grammyTag) AS num_songs_grammy  FROM (SELECT df2.*,
+            CASE WHEN GA.song_id IS NULL THEN 0 ELSE 1 END AS grammyTag
+            FROM (SELECT df.*, CASE WHEN SP.song_id IS NULL THEN 0 ELSE 1 END AS spotifyTag
+            FROM (SELECT SA.*, CASE WHEN BR.song_id IS NULL THEN 0 ELSE 1 END AS billboardTag FROM SongArtist SA
+            LEFT  JOIN (SELECT DISTINCT song_id FROM  BillboardRanking)BR on SA.song_id = BR.song_id) df
+            LEFT JOIN (SELECT DISTINCT song_id FROM  SpotifyRanking)SP on SP.song_id = df.song_id)  df2
+            LEFT JOIN (SELECT DISTINCT song_id FROM GrammyAwards) GA on GA.song_id = df2.song_id) df3
+            JOIN Artist ON Artist.artist_id = df3.artist_id
+            WHERE artist LIKE '${artistname}'
+            GROUP BY (df3.artist_id)`,
+            // callback
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    // else id was not passed in
+    } else {
+        // return an empty array
+        connection.query(
+            // query
+            `SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs ,
+            SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify ,
+            SUM(grammyTag) AS num_songs_grammy  FROM (SELECT df2.*,
+            CASE WHEN GA.song_id IS NULL THEN 0 ELSE 1 END AS grammyTag
+            FROM (SELECT df.*, CASE WHEN SP.song_id IS NULL THEN 0 ELSE 1 END AS spotifyTag
+            FROM (SELECT SA.*, CASE WHEN BR.song_id IS NULL THEN 0 ELSE 1 END AS billboardTag FROM SongArtist SA
+            LEFT  JOIN (SELECT DISTINCT song_id FROM  BillboardRanking)BR on SA.song_id = BR.song_id) df
+            LEFT JOIN (SELECT DISTINCT song_id FROM  SpotifyRanking)SP on SP.song_id = df.song_id)  df2
+            LEFT JOIN (SELECT DISTINCT song_id FROM GrammyAwards) GA on GA.song_id = df2.song_id) df3
+            JOIN Artist ON Artist.artist_id = df3.artist_id
+            GROUP BY (df3.artist_id)
+            ORDER BY artist
+            LIMIT ${offset}, ${pagesize}`,
+            // callback
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    }
+}
+
 function search_grammy_songs(req, res) {
 
     const pagesize = req.query.pagesize ? req.query.pagesize : 10
@@ -664,6 +692,53 @@ function get_billboardsongs_by_artistid(req, res) {
         );
     }
 }
+
+
+function get_songs_by_artistid(req, res) {
+    // if id was passed in
+    if (req.query.id) {
+        const artist_id = req.query.id
+
+        connection.query(
+            // query
+            `SELECT Artist.name AS artist , df.* FROM
+            (SELECT SA.artist_id, Song.* FROM SongArtist SA
+              JOIN Song on SA.song_id=Song.song_id) df
+              JOIN Artist ON df.artist_id
+              WHERE Artist.artist_id = "${artist_id}"`,
+            // callback
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    // else id was not passed in
+    } else {
+        // return an empty array
+        connection.query(
+            // query
+            `SELECT Artist.name AS artist , df.* FROM
+            (SELECT SA.artist_id, Song.* FROM SongArtist SA
+              JOIN Song on SA.song_id=Song.song_id) df
+              JOIN Artist ON df.artist_id
+              ORDER BY artist`,
+            // callback
+            function (error, results, fields) {
+                if (error) {
+                    console.log(error)
+                    res.json({ error: error })
+                } else if (results) {
+                    res.json({ results: results })
+                }
+            }
+        );
+    }
+}
+
 
 function get_spotifysongs_by_artistid(req, res) {
 
@@ -796,76 +871,6 @@ function get_grammysongs_by_artistid(req, res) {
 }
 
 
-// ------------------------------- Statistics Routes -----------------------------
-
-
-function get_awardstats_by_artist(req, res) {
-
-    const pagesize = req.query.pagesize ? req.query.pagesize : 10
-    const page = req.query.page ? req.query.page : 1
-    // get name prameter; default empty string
-    const artistname = req.query.name ? req.query.name : ""
-
-
-    // if id was passed in
-    if (req.query.artistname && !isNan(req.query.artisname)) {
-
-        const artist_id = req.query.id
-
-        connection.query(
-            // query
-            `SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs ,
-            SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify ,
-            SUM(grammyTag) AS num_songs_grammy  FROM (SELECT df2.*,
-            CASE WHEN GA.song_id IS NULL THEN 0 ELSE 1 END AS grammyTag
-            FROM (SELECT df.*, CASE WHEN SP.song_id IS NULL THEN 0 ELSE 1 END AS spotifyTag
-            FROM (SELECT SA.*, CASE WHEN BR.song_id IS NULL THEN 0 ELSE 1 END AS billboardTag FROM SongArtist SA
-            LEFT  JOIN (SELECT DISTINCT song_id FROM  BillboardRanking)BR on SA.song_id = BR.song_id) df
-            LEFT JOIN (SELECT DISTINCT song_id FROM  SpotifyRanking)SP on SP.song_id = df.song_id)  df2
-            LEFT JOIN (SELECT DISTINCT song_id FROM GrammyAwards) GA on GA.song_id = df2.song_id) df3
-            JOIN Artist ON Artist.artist_id = df3.artist_id
-            WHERE artist LIKE '${artistname}'
-            GROUP BY (df3.artist_id)`,
-            // callback
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-    // else id was not passed in
-    } else {
-        // return an empty array
-        connection.query(
-            // query
-            `SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs ,
-            SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify ,
-            SUM(grammyTag) AS num_songs_grammy  FROM (SELECT df2.*,
-            CASE WHEN GA.song_id IS NULL THEN 0 ELSE 1 END AS grammyTag
-            FROM (SELECT df.*, CASE WHEN SP.song_id IS NULL THEN 0 ELSE 1 END AS spotifyTag
-            FROM (SELECT SA.*, CASE WHEN BR.song_id IS NULL THEN 0 ELSE 1 END AS billboardTag FROM SongArtist SA
-            LEFT  JOIN (SELECT DISTINCT song_id FROM  BillboardRanking)BR on SA.song_id = BR.song_id) df
-            LEFT JOIN (SELECT DISTINCT song_id FROM  SpotifyRanking)SP on SP.song_id = df.song_id)  df2
-            LEFT JOIN (SELECT DISTINCT song_id FROM GrammyAwards) GA on GA.song_id = df2.song_id) df3
-            JOIN Artist ON Artist.artist_id = df3.artist_id
-            GROUP BY (df3.artist_id)
-            ORDER BY artist
-            LIMIT ${offset}, ${pagesize}`,
-            // callback
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-    }
-}
 
 
 
