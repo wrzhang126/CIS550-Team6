@@ -890,6 +890,9 @@ module.exports = {
     all_songs,
     search_songs,
     get_songs_by_artistid,
+    search_billboard_ranking,
+    search_grammy_songs,
+    search_spotify_ranking,
     get_billboardsongs_by_artistid,
     get_spotifysongs_by_artistid,
     get_grammysongs_by_artistid
