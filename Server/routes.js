@@ -502,7 +502,7 @@ function get_awardstats_by_artist(req, res) {
     const pagesize = req.query.pagesize ? req.query.pagesize : 10
     const page = req.query.page ? req.query.page : 1
     // get name prameter; default empty string
-    const artistname = req.query.name ? req.query.name : ""
+    const artistname = req.query.name ? req.query.name : "%%"
 
 
     // if id was passed in
@@ -632,7 +632,7 @@ function get_billboardsongs_by_artistid(req, res) {
     const pagesize = req.query.pagesize ? req.query.pagesize : 10
     const page = req.query.page ? req.query.page : 1
     // get name prameter; default empty string
-    const name = req.query.name ? req.query.name : ""
+    const name = req.query.name ? req.query.name : "%%"
 
     // if id was passed in
     if (req.query.id) {
