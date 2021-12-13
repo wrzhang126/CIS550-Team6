@@ -3,22 +3,22 @@
 // ===========================================================================
 // dependencies
 const express = require("express");
-const cors = require('cors');
+const cors = require("cors");
 
 // local imports
-const routes = require('./routes')
+const routes = require("./routes");
 
 // configure .env variables
-require('dotenv').config()
+require("dotenv").config();
 
 // ===========================================================================
 // EXPRESS CONFIGURATION
 // ===========================================================================
 const app = express();
-const PORT = process.env.SERVER_PORT || 8080 ;
+const PORT = process.env.SERVER_PORT || 8080;
 
 // set up app to allow CORS connection
-app.use(cors({origin: '*'}));
+app.use(cors({ origin: "*" }));
 
 // ===========================================================================
 // ROUTING
@@ -27,7 +27,7 @@ app.get("/", routes.hello);
 app.get("/artist", routes.test_db_query);
 app.get("/all/artists", routes.all_artists);
 app.get("/search/artists", routes.search_artists);
-app.get("/find/artist", routes.get_artist_by_id);
+app.get("/artist/:id", routes.get_artist_by_id);
 app.get("/find/artist/song", routes.get_songs_by_artistid);
 app.get("/all/songs", routes.all_songs);
 app.get("/search/songs", routes.search_songs);
