@@ -23,8 +23,6 @@ app.use(cors({ origin: "*" }));
 // ===========================================================================
 // ROUTING
 // ===========================================================================
-app.get("/", routes.hello);
-app.get("/artist", routes.test_db_query);
 app.get("/all/artists", routes.all_artists);
 app.get("/search/artists", routes.search_artists);
 app.get("/artist/:id", routes.get_artist_by_id);
@@ -32,12 +30,14 @@ app.get("/songs/artist/:id", routes.get_songs_by_artistid);
 app.get("/songs", routes.all_songs);
 app.get("/song", routes.get_song_by_id);
 app.get("/search/songs", routes.search_songs);
-
 app.get("/ranking", routes.awarded_artist);
 app.get("/awards", routes.get_awardstats_by_artist);
 app.get("/awards/billboard", routes.get_billboardsongs_by_artistid);
 app.get("/awards/spotify", routes.get_spotifysongs_by_artistid);
 app.get("/awards/grammy", routes.get_grammysongs_by_artistid);
+app.get("/top/artists", routes.get_top_spotify_and_billboard_artists);
+app.get("/consecutive/spotify", routes.get_consecutive_spotify_songs);
+app.get("/consecutive/billboard", routes.get_consecutive_billboard_songs);
 
 // ===========================================================================
 // LISTENER
