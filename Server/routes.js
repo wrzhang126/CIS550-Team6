@@ -680,6 +680,8 @@ function get_spotifysongs_by_artistid(req, res) {
   }
 }
 
+// ------------------ CQ #7 -------------------
+// --------------------------------------------
 function get_grammysongs_by_artistid(req, res) {
   const pagesize = req.query.pagesize ? req.query.pagesize : 10;
   const page = req.query.page ? req.query.page : 1;
@@ -692,15 +694,17 @@ function get_grammysongs_by_artistid(req, res) {
 
     connection.query(
       // query
-      `SELECT df2.*, Song.* FROM
-              (SELECT df.award, df.year, df.artist_id , Artist.name AS artist, df.song_id FROM
-              (SELECT GA.*,
-              SA.artist_id FROM GrammyAwards GA
-              JOIN SongArtist SA             
-              ON GA.song_id = SA.song_id WHERE SA.artist_id = "${artist_id}") df
-              JOIN Artist ON df.artist_id=Artist.artist_id) df2
-              JOIN Song ON Song.song_id=df2.song_id
-              ORDER BY year DESC`,
+      `SELECT df2.*, Song.* 
+        FROM    (SELECT df.award, df.year, df.artist_id , Artist.name AS artist, df.song_id 
+                FROM    (SELECT GA.*, SA.artist_id 
+                        FROM    GrammyAwards GA
+                                JOIN SongArtist SA ON GA.song_id = SA.song_id 
+                        WHERE SA.artist_id = "${artist_id}"
+                        ) df
+                        JOIN Artist ON df.artist_id=Artist.artist_id
+                ) df2
+                JOIN Song ON Song.song_id=df2.song_id
+        ORDER BY year DESC`,
       // callback
       function (error, results, fields) {
         if (error) {
@@ -716,15 +720,16 @@ function get_grammysongs_by_artistid(req, res) {
     // return an empty array
     connection.query(
       // query
-      `SELECT df2.*, Song.* FROM
-              (SELECT df.award, df.year, df.artist_id , Artist.name AS artist, df.song_id FROM
-              (SELECT GA.*,
-              SA.artist_id FROM GrammyAwards GA
-              JOIN SongArtist SA
-              ON GA.song_id = SA.song_id) df
-              JOIN Artist ON df.artist_id=Artist.artist_id) df2
-              JOIN Song ON Song.song_id=df2.song_id
-              ORDER BY artist`,
+      `SELECT df2.*, Song.* 
+        FROM    (SELECT df.award, df.year, df.artist_id , Artist.name AS artist, df.song_id 
+                FROM    (SELECT GA.*, SA.artist_id 
+                        FROM    GrammyAwards GA
+                                JOIN SongArtist SA ON GA.song_id = SA.song_id 
+                        ) df
+                        JOIN Artist ON df.artist_id=Artist.artist_id
+                ) df2
+                JOIN Song ON Song.song_id=df2.song_id
+        ORDER BY artist`,
       // callback
       function (error, results, fields) {
         if (error) {
