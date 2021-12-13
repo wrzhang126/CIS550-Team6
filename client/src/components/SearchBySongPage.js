@@ -61,14 +61,27 @@ class SearchBySongPage extends React.Component {
         startYearQuery : '',
         endYearQuery : '',
         danceabilityLowQuery : 0,
-        danceabilityHighQuery : 1
+        danceabilityHighQuery : 1,
+        energyLowQuery : 0,
+        energyHighQuery : 1,
+        livenessLowQuery : 0,
+        livenessHighQuery : 1,
+        tempoLowQuery : 0,
+        tempoHighQuery : 1,
+        valenceLowQuery : 0,
+        valenceHighQuery : 1
         
     }
     this.handleNameQueryChange = this.handleNameQueryChange.bind(this)
     this.handleStartYearQueryChange = this.handleStartYearQueryChange.bind(this)
     this.handleEndYearQueryChange = this.handleEndYearQueryChange.bind(this)
     this.handleDanceabilityChange = this.handleDanceabilityChange.bind(this)
+    this.handleEnergyChange = this.handleEnergyChange.bind(this)
+    this.handleLivenessChange = this.handleLivenessChange.bind(this)
+    this.handleTempoChange = this.handleTempoChange.bind(this)
+    this.handleValenceChange = this.handleValenceChange.bind(this)
     this.updateSearchResults = this.updateSearchResults.bind(this)
+    this.onAfterChange = this.onAfterChange.bind(this)
 }
 handleNameQueryChange(event) {
   this.setState({ nameQuery: event.target.value })
@@ -83,13 +96,33 @@ handleDanceabilityChange(value){
   this.setState({ danceabilityLowQuery: value[0] })
   this.setState({ danceabilityHighQuery: value[1] })
 }
+handleEnergyChange(value){
+  this.setState({ energyLowQuery: value[0] })
+  this.setState({ energyHighQuery: value[1] })
+}
+handleLivenessChange(value){
+  this.setState({ livenessLowQuery: value[0] })
+  this.setState({ livenessHighQuery: value[1] })
+}
+handleTempoChange(value){
+  this.setState({ tempoLowQuery: value[0] })
+  this.setState({ tempoHighQuery: value[1] })
+}
+handleValenceChange(value){
+  this.setState({ valenceLowQuery: value[0] })
+  this.setState({ valenceHighQuery: value[1] })
+}
 updateSearchResults() {
 
-  getSongSearch(this.state.nameQuery, this.state.startYearQuery, this.state.endYearQuery, null, null).then(res => {
+  getSongSearch(this.state.nameQuery, this.state.danceabilityLowQuery, this.state.danceabilityHighQuery, this.state.energyLowQuery, this.state.energyHighQuery,
+    this.state.livenessLowQuery, this.state.livenessHighQuery, this.state.tempoLowQuery, this.state.tempoHighQuery, 
+    this.state.valenceLowQuery, this.state.valenceHighQuery, this.state.startYearQuery, this.state.endYearQuery, null, null).then(res => {
       this.setState({ songsResults: res.results })
   })
 }
-
+onAfterChange(value) {
+  console.log('onAfterChange: ', value);
+}
 componentDidMount() {
   getAllSongs().then(res => {
     console.log(res.results)
@@ -140,7 +173,15 @@ componentDidMount() {
                 <div style={{ fontWeight: 'bold', textAlign: "left"}}> Songs attributes </div>
                 <FormGroup style={{width : '90%', margin : "auto"}}>
                   <label> Danceability</label>
-                  <Slider range defaultValue={[0, 1]} onChange={this.handleDanceabilityChange}/>
+                  <Slider range min ={0} max = {1} step={0.01} defaultValue={[this.state.danceabilityLowQuery, this.state.danceabilityHighQuery]} onChange={this.handleDanceabilityChange}/>
+                  <label> Energy</label>
+                  <Slider range min ={0} max = {1} step={0.01}defaultValue={[0, 1]} onChange={this.handleEnergyChange} onAfterChange={this.onAfterChange}/>
+                  <label> Liveness</label>
+                  <Slider range min ={0} max = {1} step={0.01}defaultValue={[0, 1]} onChange={this.handleLivenessChange}/>
+                  <label> Tempo</label>
+                  <Slider range min ={0} max = {10} step={1}defaultValue={[0, 10]} onChange={this.handleTempoChange}/>
+                  <label> Valence</label>
+                  <Slider range min ={0} max = {1} step={0.01}defaultValue={[0, 1]} onChange={this.handleValenceChange}/>
                 </FormGroup>
               </Form>
             </div>
@@ -168,7 +209,7 @@ componentDidMount() {
                         tickFormat={t => wideFormat(t)}
                         startingAngle={0}
                         domains={[
-                            { name: 'Loudness', domain: [-10, 8], getValue: d => d.loudness ? d.loudness : 0 },
+                            { name: 'Valence', domain: [0, 1], getValue: d => d.valence ? d.valence : 0 },
                             { name: 'Danceability', domain: [0, 1], getValue: d => d.danceability },
                             { name: 'Tempo', domain: [0, 10], getValue: d => d.tempo },
                             { name: 'Liveness', domain: [0, 1], getValue: d => d.liveness},
@@ -182,31 +223,6 @@ componentDidMount() {
                   </Row>
               </CardBody>
   
-            </Card>
-            <Card id="filter-container" style = {{width: "70vw%", marginTop : '2vh'}}>
-              <CardBody>
-                <Row gutter='300' align = 'left'>
-                  <Col>
-                  <h2>Grammy</h2>
-                  <br></br>
-                  <h5>award:</h5>
-                  <h5>year:</h5>
-                  </Col>
-                  <Col>
-                  <h2>Spotify</h2>
-                  <br></br>
-                  <h5>rank:</h5>
-                  <h5>stream:</h5>
-                  </Col>
-                  <Col>
-                  <h2>BillBoard</h2>
-                  <br></br>
-                  <h5>rank:</h5>
-                  <h5>top rank:</h5>
-                  </Col>
-                </Row>
-
-              </CardBody>
             </Card>
 
         </div>
