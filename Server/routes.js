@@ -72,8 +72,9 @@ function get_artist_by_id(req, res) {
     const artist_id = req.params["id"];
     connection.query(
       // query
-      `SELECT *
-            FROM Artist a
+      `SELECT a.*, GROUP_CONCAT(ag.genre) AS genres
+            FROM    Artist a
+                    JOIN ArtistGenre ag on a.artist_id = ag.artist_id
             WHERE a.artist_id = "${artist_id}"`,
       // callback
       function (error, results, fields) {
@@ -136,7 +137,6 @@ function search_songs(req, res) {
   const valenceHigh = req.query.valenceHigh ? req.query.valenceHigh : 100;
   const valenceLow = req.query.valenceLow ? req.query.valenceLow : 0;
 
-  console.log(`THEIS IS AHHD: ${typeof req.query.page} , ${req.query.page}`);
   connection.query(
     // query
     `SELECT s.song_id, s.title, s.album
@@ -174,8 +174,10 @@ function get_song_by_id(req, res) {
 
     connection.query(
       // query
-      `SELECT *
-            FROM Song s
+      `SELECT s.*, GROUP_CONCAT(a.name) AS artist_names, GROUP_CONCAT(a.artist_id) AS artist_ids
+            FROM    Song s
+                    Left JOIN SongArtist sa on s.song_id = sa.song_id
+                    Left Join Artist a on sa.artist_id = a.artist_id
             WHERE s.song_id = "${song_id}"`,
       // callback
       function (error, results, fields) {
