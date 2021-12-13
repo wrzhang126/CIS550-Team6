@@ -9,9 +9,9 @@ function Filter({ handleFormSubmission }) {
   };
 
   return (
-    <div>
+    <div style={{ padding: "30px" }}>
       <Form onFinish={onFinish} layout="vertical">
-        <Form.Item name="name" label="Field A">
+        <Form.Item name="name" label="Artist name">
           <Input placeholder="Artist name" />
         </Form.Item>
         <Form.Item name="startYear" label="Start year">

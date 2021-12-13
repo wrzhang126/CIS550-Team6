@@ -63,11 +63,12 @@ export default function SearchByArtistPage() {
                   onClick: (event) => {
                     handleRowSelection(record);
                   }, // click row
-                  onDoubleClick: (event) => {}, // double click row
-                  onContextMenu: (event) => {}, // right button click row
-                  onMouseEnter: (event) => {}, // mouse enter row
-                  onMouseLeave: (event) => {}, // mouse leave row
                 };
+              }}
+              pagination={{
+                pageSizeOptions: [5, 10],
+                defaultPageSize: 5,
+                showQuickJumper: true,
               }}
             />
           </div>

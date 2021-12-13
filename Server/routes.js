@@ -566,23 +566,35 @@ function get_billboardsongs_by_artistid(req, res) {
 
 // TODO: MOVE THIS QUERY UP TO SONGS SECTION 
 function get_songs_by_artistid(req, res) {
+  console.log(req.params["id"]);
   // if id was passed in
   if (req.params["id"]) {
     const artist_id = req.params["id"];
-
     connection.query(
       // query
+<<<<<<< HEAD
       `SELECT Artist.name AS artist , df.* FROM
             (SELECT SA.artist_id, Song.* FROM SongArtist SA
               JOIN Song on SA.song_id=Song.song_id) df
               JOIN Artist ON df.artist_id
               WHERE Artist.artist_id = '${artist_id}'`,
+=======
+      `SELECT Artist.name AS artist , df.*
+        FROM   (SELECT SA.artist_id, Song.*
+                FROM    SongArtist SA
+                        JOIN Song on SA.song_id = Song.song_id
+                ) df
+                JOIN Artist ON df.artist_id = Artist.artist_id
+        WHERE Artist.artist_id = "${artist_id}"`,
+>>>>>>> main
       // callback
       function (error, results, fields) {
         if (error) {
           console.log(error);
+          console.log("this isis si");
           res.json({ error: error });
         } else if (results) {
+          console.log("hehehhehe");
           res.json({ results: results });
         }
       }
@@ -590,23 +602,7 @@ function get_songs_by_artistid(req, res) {
     // else id was not passed in
   } else {
     // return an empty array
-    connection.query(
-      // query
-      `SELECT Artist.name AS artist , df.* FROM
-            (SELECT SA.artist_id, Song.* FROM SongArtist SA
-              JOIN Song on SA.song_id=Song.song_id) df
-              JOIN Artist ON df.artist_id
-              ORDER BY artist`,
-      // callback
-      function (error, results, fields) {
-        if (error) {
-          console.log(error);
-          res.json({ error: error });
-        } else if (results) {
-          res.json({ results: results });
-        }
-      }
-    );
+    res.json({ results: [] });
   }
 }
 

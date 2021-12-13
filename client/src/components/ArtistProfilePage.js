@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { getArtist } from "../fetcher";
-import { Image, Table } from "react-bootstrap";
+import { getArtist, getSongsByArtist } from "../fetcher";
+import { Image } from "react-bootstrap";
+import { Highlighter } from "react-highlight-words";
+import { Table, Button, Input, Space } from "antd";
 import Navigationbar from "./Navbar";
+import { SearchOutlined } from "@ant-design/icons";
 import "./Body.css";
 
 export default function ArtistProfile() {
@@ -9,15 +12,151 @@ export default function ArtistProfile() {
   const [name, setName] = useState("");
   const [followers, setFollowers] = useState(0);
   const [popularity, setPopularity] = useState(0);
+  const [songs, setSongs] = useState([]);
   const artistId = window.location.pathname.split("/")[2];
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
 
-  getArtist(artistId).then((res) => {
-    console.log(res.results[0]);
-    setUrl(res.results[0].image_url);
-    setName(res.results[0].name);
-    setFollowers(res.results[0].followers);
-    setPopularity(res.results[0].popularity);
+  useEffect(() => {
+    getArtist(artistId).then((res) => {
+      setUrl(res.results[0].image_url);
+      setName(res.results[0].name);
+      setFollowers(res.results[0].followers);
+      setPopularity(res.results[0].popularity);
+    });
+    getSongsByArtist(artistId).then((res) => {
+      setSongs(res.results);
+    });
+  }, []);
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    console.log(selectedKeys[0]);
+    console.log(dataIndex);
+    setSearchText(selectedKeys[0]);
+    // setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          ref={(node) => {
+            console.log(node);
+          }}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({ closeDropdown: false });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex]
+        ? record[dataIndex]
+            .toString()
+            .toLowerCase()
+            .includes(value.toLowerCase())
+        : "",
+    onFilterDropdownVisibleChange: (visible) => {
+      if (visible) {
+        console.log("triall");
+        // setTimeout(() => this.searchInput.select(), 100);
+      }
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ""}
+        />
+      ) : (
+        text
+      ),
   });
+
+  const columns = [
+    {
+      title: "Song name",
+      dataIndex: "title",
+      width: "30%",
+      ...getColumnSearchProps("title"),
+    },
+    {
+      title: "Album",
+      dataIndex: "album",
+      width: "30%",
+      ...getColumnSearchProps("album"),
+    },
+
+    {
+      title: "Danceability",
+      dataIndex: "danceability",
+      sorter: (a, b) => a.danceability - b.danceability,
+    },
+    {
+      title: "Energy",
+      dataIndex: "energy",
+      sorter: (a, b) => a.energy - b.energy,
+    },
+
+    {
+      title: "Liveness",
+      dataIndex: "liveness",
+      sorter: (a, b) => a.liveness - b.liveness,
+    },
+    {
+      title: "Release date",
+      dataIndex: "release_date",
+    },
+  ];
+
   return (
     <div>
       <Navigationbar />
@@ -66,214 +205,7 @@ export default function ArtistProfile() {
             </div>
           </div>
         </div>
-        <Table stickyHeader responsive>
-          <thead>
-            <tr>
-              <th style={{ color: "#0D6EFD" }}>#</th>
-              <th style={{ color: "#0D6EFD" }}>Song Name</th>
-              <th style={{ color: "#0D6EFD" }}>Danceability</th>
-              <th style={{ color: "#0D6EFD" }}>Energy</th>
-              <th style={{ color: "#0D6EFD" }}>Liveness</th>
-              <th style={{ color: "#0D6EFD" }}>Release year</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-            <tr>
-              <td>1</td>
-              <td>Socco</td>
-              <td>6</td>
-              <td>100</td>
-              <td>199</td>
-              <td>2019</td>
-            </tr>
-          </tbody>
-        </Table>
+        <Table columns={columns} dataSource={songs} />
       </div>
     </div>
   );
