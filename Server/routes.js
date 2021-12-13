@@ -522,7 +522,7 @@ function get_billboardsongs_by_artistid(req, res) {
                     JOIN Artist ON df.artist_id = Artist.artist_id
             ) df2
             JOIN Song ON Song.song_id = df2.song_id
-        WHERE Song.title LIKE '${name}'
+        WHERE Song.title LIKE '%${name}%'
         ORDER BY num DESC`,
       // callback
       function (error, results, fields) {
@@ -536,7 +536,7 @@ function get_billboardsongs_by_artistid(req, res) {
     );
     // else id was not passed in
   } else {
-    // return an empty array
+    // return songs by all artists
     connection.query(
       // query
       `SELECT df2.artist_id, df2.artist, df2.latestweek, Song.*
@@ -549,7 +549,7 @@ function get_billboardsongs_by_artistid(req, res) {
                     JOIN Artist ON df.artist_id=Artist.artist_id
             ) df2
             JOIN Song ON Song.song_id=df2.song_id
-        WHERE Song.title LIKE '${name}'
+        WHERE Song.title LIKE '%${name}%'
         ORDER BY artist`,
       // callback
       function (error, results, fields) {
@@ -576,7 +576,7 @@ function get_songs_by_artistid(req, res) {
             (SELECT SA.artist_id, Song.* FROM SongArtist SA
               JOIN Song on SA.song_id=Song.song_id) df
               JOIN Artist ON df.artist_id
-              WHERE Artist.artist_id = "${artist_id}"`,
+              WHERE Artist.artist_id = '${artist_id}'`,
       // callback
       function (error, results, fields) {
         if (error) {
@@ -615,27 +615,30 @@ function get_songs_by_artistid(req, res) {
 function get_spotifysongs_by_artistid(req, res) {
   const pagesize = req.query.pagesize ? req.query.pagesize : 10;
   const page = req.query.page ? req.query.page : 1;
+  const offset = (page - 1) * pagesize;
   // get name prameter; default empty string
   const name = req.query.name ? req.query.name : "";
 
   // if id was passed in
   if (req.query.id) {
     const artist_id = req.query.id;
+    console.log(artist_id)
 
     connection.query(
       // query
-      `SELECT df2.artist_id, df2.artist, df2.latestweek, Song.* FROM
-              (SELECT df.* , Artist.name AS artist FROM
-              (SELECT DISTINCT SpotifyRanking.song_id, MAX(SpotifyRanking.week) as latestweek ,
-              SA.artist_id FROM SpotifyRanking
-              JOIN SongArtist SA
-              ON SpotifyRanking.song_id = SA.song_id
-              WHERE SA.artist_id = "${artist_id}"
-              GROUP BY SpotifyRanking.song_id) df
-              JOIN Artist ON df.artist_id=Artist.artist_id) df2
-              JOIN Song ON Song.song_id=df2.song_id
-              WHERE Song.title LIKE '${name}'
-              ORDER BY latestweek DESC`,
+      `SELECT df2.artist_id, df2.artist, df2.latestweek, Song.* 
+        FROM    (SELECT df.* , Artist.name AS artist 
+                FROM    (SELECT DISTINCT SpotifyRanking.song_id, MAX(SpotifyRanking.week) as latestweek , SA.artist_id 
+                        FROM    SpotifyRanking
+                                JOIN SongArtist SA  ON SpotifyRanking.song_id = SA.song_id
+                        WHERE SA.artist_id = '${artist_id}'
+                        GROUP BY SpotifyRanking.song_id
+                        ) df
+                        JOIN Artist ON df.artist_id=Artist.artist_id
+                ) df2
+                JOIN Song ON Song.song_id=df2.song_id
+        WHERE Song.title LIKE '%${name}%'
+        ORDER BY latestweek DESC`,
       // callback
       function (error, results, fields) {
         if (error) {
@@ -648,21 +651,22 @@ function get_spotifysongs_by_artistid(req, res) {
     );
     // else id was not passed in
   } else {
-    // return an empty array
+    // return songs for all artists
     connection.query(
       // query
-      `SELECT df2.artist_id, df2.artist, df2.latestweek, Song.* FROM
-              (SELECT df.* , Artist.name AS artist FROM
-              (SELECT DISTINCT SpotifyRanking.song_id, MAX(SpotifyRanking.week) as latestweek ,
-              SA.artist_id FROM SpotifyRanking
-              JOIN SongArtist SA
-              ON SpotifyRanking.song_id = SA.song_id
-              GROUP BY SpotifyRanking.song_id) df
-              JOIN Artist ON df.artist_id=Artist.artist_id) df2
-              JOIN Song ON Song.song_id=df2.song_id
-              WHERE Song.title LIKE '${name}'
-              ORDER BY artist
-              LIMIT ${offset}, ${pagesize}`,
+      `SELECT df2.artist_id, df2.artist, df2.latestweek, Song.* 
+        FROM    (SELECT df.* , Artist.name AS artist 
+                FROM    (SELECT DISTINCT SpotifyRanking.song_id, MAX(SpotifyRanking.week) as latestweek , SA.artist_id 
+                        FROM    SpotifyRanking
+                                JOIN SongArtist SA  ON SpotifyRanking.song_id = SA.song_id
+                        GROUP BY SpotifyRanking.song_id
+                        ) df
+                        JOIN Artist ON df.artist_id=Artist.artist_id
+                ) df2
+                JOIN Song ON Song.song_id=df2.song_id
+        WHERE Song.title LIKE '%${name}%'
+        ORDER BY artist
+        LIMIT ${offset}, ${pagesize}`,
       // callback
       function (error, results, fields) {
         if (error) {
