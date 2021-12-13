@@ -135,6 +135,26 @@ const getArtistById = async (artist_id) => {
   );
   return res.json();
 };
+
+const getBoringTableOne = async () => {
+  var res = await fetch(
+    `http://${config.server_host}:${config.server_port}/consecutive/spotify`,
+    {
+      method: "GET",
+    }
+  );
+  return res.json();
+};
+
+const getBoringTableTwo = async () => {
+  var res = await fetch(
+    `http://${config.server_host}:${config.server_port}/consecutive/billboard`,
+    {
+      method: "GET",
+    }
+  );
+  return res.json();
+};
 export {
   getAllSongs,
   getSong,
@@ -147,4 +167,6 @@ export {
   getSongsByArtist,
   getArtist,
   searchArtists,
+  getBoringTableOne,
+  getBoringTableTwo,
 };

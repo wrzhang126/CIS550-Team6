@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 // import ArtistProfile from "./components/test";
 import ArtistProfile from "./components/ArtistProfilePage";
 import RankingPage from "./components/RankingPage";
+import BoringPage from "./components/BoringPage";
 
 function App() {
   return (
@@ -14,9 +15,9 @@ function App() {
           <Route path="/search/artists" element={<SearchByArtistPage />} />
           <Route path="/songs" element={<SearchBySongPage />} />
           <Route path="/artist/:id" element={<ArtistProfile />} />
-
           <Route path="/" element={<SearchByArtistPage />} />
           <Route path="/ranking" element={<RankingPage />} />
+          <Route path="/boringpage" element={<BoringPage />} />
         </Routes>
       </Router>
     </div>

@@ -49,6 +49,12 @@ export default function Navigationbar() {
               >
                 Ranking
               </Button>
+              <Button
+                variant="outline-primary"
+                onClick={() => navigate("/boringpage")}
+              >
+                Boring page
+              </Button>
             </Nav>
             <Form className="d-flex">
               <FormControl
