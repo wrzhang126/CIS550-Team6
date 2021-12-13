@@ -35,6 +35,9 @@ app.get("/awards", routes.get_awardstats_by_artist);
 app.get("/awards/billboard", routes.get_billboardsongs_by_artistid);
 app.get("/awards/spotify", routes.get_spotifysongs_by_artistid);
 app.get("/awards/grammy", routes.get_grammysongs_by_artistid);
+app.get("/top/artists", routes.get_top_spotify_and_billboard_artists);
+app.get("/consecutive/spotify", routes.get_consecutive_spotify_songs);
+app.get("/consecutive/billboard", routes.get_consecutive_billboard_songs);
 
 // ===========================================================================
 // LISTENER

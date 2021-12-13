@@ -743,6 +743,101 @@ function get_grammysongs_by_artistid(req, res) {
   }
 }
 
+// ------------------ CQ #1 -------------------
+// --------------------------------------------
+function get_top_spotify_and_billboard_artists(req, res) { 
+
+    connection.query(
+    // query
+    `SELECT df.artist_id, Artist.name AS artist, SUM(SpotifyTag) AS total_spotify_consec, SUM(billboardTag)  AS total_billboard_consec
+    FROM (  SELECT  SA.artist_id ,
+                    IF(SP.song_id IS NULL, 0, 1) AS SpotifyTag ,
+                    IF(BR.song_id IS NULL, 0, 1) AS billboardTag
+            FROM    SongArtist SA
+                    LEFT JOIN ( SELECT DISTINCT r1.song_id
+                                FROM BillboardRanking r1
+                                INNER JOIN BillboardRanking r2 ON r1.song_id = r2.song_id
+                                WHERE DATEDIFF(r1.week, r2.week) = 7) BR
+                    ON SA.song_id = BR.song_id
+                    LEFT JOIN ( SELECT DISTINCT r1.song_id
+                                FROM SpotifyRanking r1
+                                INNER JOIN SpotifyRanking r2 ON r1.song_id = r2.song_id
+                                WHERE DATEDIFF(r1.week, r2.week) = 7) SP
+                    ON SA.song_id = SP.song_id) df
+    
+            JOIN Artist on df.artist_id = Artist.artist_id
+    GROUP BY df.artist_id
+    HAVING SUM(SpotifyTag) > 0 OR SUM(billboardTag) > 0
+    ORDER BY total_spotify_consec DESC, total_billboard_consec DESC;`,
+    // callback
+    function (error, results, fields) {
+        if (error) {
+        console.log(error);
+        res.json({ error: error });
+        } else if (results) {
+        res.json({ results: results });
+        }
+    }
+    );
+
+  }
+
+// ------------------ CQ #2 -------------------
+// --------------------------------------------
+function get_consecutive_spotify_songs(req, res) { 
+
+    connection.query(
+    // query
+    `SELECT SA.artist_id, Artist.name AS artist, df.*
+    FROM    (   SELECT s.song_id, s.title, MAX(r1.week) as last_week , MIN(r2.week) AS first_week, COUNT(*) AS num_consec_weeks
+                FROM    SpotifyRanking r1
+                        INNER JOIN SpotifyRanking r2 ON r1.song_id = r2.song_id AND DATEDIFF(r1.week, r2.week) = 7
+                        INNER JOIN Song s ON r1.song_id = s.song_id
+                GROUP BY s.song_id) df
+            JOIN SongArtist SA ON df.song_id=SA.song_id
+            JOIN Artist ON SA.artist_id=Artist.artist_id
+    ORDER BY artist;`,
+    // callback
+    function (error, results, fields) {
+        if (error) {
+        console.log(error);
+        res.json({ error: error });
+        } else if (results) {
+        res.json({ results: results });
+        }
+    }
+    );
+
+  }
+
+// ------------------ CQ #3 -------------------
+// --------------------------------------------
+function get_consecutive_billboard_songs(req, res) { 
+
+    connection.query(
+    // query
+    `SELECT SA.artist_id, Artist.name AS artist, df.*
+    FROM    (   SELECT s.song_id, s.title, MAX(r1.week) as last_week , MIN(r2.week) AS first_week, COUNT(*) AS num_consec_weeks
+                FROM    BillboardRanking r1
+                        INNER JOIN BillboardRanking r2 ON r1.song_id = r2.song_id AND DATEDIFF(r1.week, r2.week) = 7
+                        INNER JOIN Song s ON r1.song_id = s.song_id
+                GROUP BY s.song_id) df
+            JOIN SongArtist SA ON df.song_id=SA.song_id
+            JOIN Artist ON SA.artist_id=Artist.artist_id
+    ORDER BY artist;`,
+    // callback
+    function (error, results, fields) {
+        if (error) {
+        console.log(error);
+        res.json({ error: error });
+        } else if (results) {
+        res.json({ results: results });
+        }
+    }
+    );
+
+  }
+
 // ===========================================================================
 // EXPORTS
 // ===========================================================================
@@ -765,4 +860,7 @@ module.exports = {
   get_spotifysongs_by_artistid,
   get_grammysongs_by_artistid,
   get_awardstats_by_artist,
+  get_top_spotify_and_billboard_artists,
+  get_consecutive_spotify_songs,
+  get_consecutive_billboard_songs,
 };
