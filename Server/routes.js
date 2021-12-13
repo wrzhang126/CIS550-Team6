@@ -665,23 +665,25 @@ function get_billboardsongs_by_artistid(req, res) {
 }
 
 function get_songs_by_artistid(req, res) {
+  console.log(req.params["id"]);
   // if id was passed in
   if (req.params["id"]) {
     const artist_id = req.params["id"];
-
     connection.query(
       // query
       `SELECT Artist.name AS artist , df.* FROM
             (SELECT SA.artist_id, Song.* FROM SongArtist SA
               JOIN Song on SA.song_id=Song.song_id) df
               JOIN Artist ON df.artist_id
-              WHERE Artist.artist_id = "${artist_id}"`,
+              WHERE Artist.artist_id = '${artist_id}' LIMIT 50`,
       // callback
       function (error, results, fields) {
         if (error) {
           console.log(error);
+          console.log("this isis si");
           res.json({ error: error });
         } else if (results) {
+          console.log("hehehhehe");
           res.json({ results: results });
         }
       }
@@ -695,7 +697,7 @@ function get_songs_by_artistid(req, res) {
             (SELECT SA.artist_id, Song.* FROM SongArtist SA
               JOIN Song on SA.song_id=Song.song_id) df
               JOIN Artist ON df.artist_id
-              ORDER BY artist`,
+              ORDER BY artist LIMIT 50`,
       // callback
       function (error, results, fields) {
         if (error) {

@@ -18,24 +18,47 @@ export default function Navigationbar() {
           <Navbar.Brand href="#">Tbd</Navbar.Brand>
           <Navbar.Toggle aria-controls="navbarScroll" />
           <Navbar.Collapse id="navbarScroll">
-          <Nav
-            className="me-auto my-2 my-lg-0"
-            style={{ maxHeight: '100px' }}
-            navbarScroll
-          >
-            <Button variant="outline-primary" onClick={()=> navigate('/searchbyartist',{from: "SearchBySong"})} style={{marginRight: "10px"}}>Search by Artist</Button>
-            <Button variant="outline-primary" onClick={()=> navigate('/songs',{from: "SearchByArtist"})} style={{marginRight: "10px"}} >Search by Song</Button>
-            <Button variant="outline-primary" onClick={()=> navigate('/ranking',{from: ["SearchByArtist", "SearchBySong"]})}>Ranking</Button>
-          </Nav>
-          <Form className="d-flex">
-          <FormControl
-            type="search"
-            placeholder="Search by artist"
-            className="me-2"
-            aria-label="Search"
-          />
-          <Button variant="outline-primary">Search</Button>
-          </Form>
+            <Nav
+              className="me-auto my-2 my-lg-0"
+              style={{ maxHeight: "100px" }}
+              navbarScroll
+            >
+              <Button
+                variant="outline-primary"
+                onClick={() =>
+                  navigate("/search/artists", { from: "SearchBySong" })
+                }
+                style={{ marginRight: "10px" }}
+              >
+                Search by Artist
+              </Button>
+              <Button
+                variant="outline-primary"
+                onClick={() => navigate("/songs", { from: "SearchByArtist" })}
+                style={{ marginRight: "10px" }}
+              >
+                Search by Song
+              </Button>
+              <Button
+                variant="outline-primary"
+                onClick={() =>
+                  navigate("/ranking", {
+                    from: ["SearchByArtist", "SearchBySong"],
+                  })
+                }
+              >
+                Ranking
+              </Button>
+            </Nav>
+            <Form className="d-flex">
+              <FormControl
+                type="search"
+                placeholder="Search by artist"
+                className="me-2"
+                aria-label="Search"
+              />
+              <Button variant="outline-primary">Search</Button>
+            </Form>
           </Navbar.Collapse>
         </Container>
       </Navbar>
