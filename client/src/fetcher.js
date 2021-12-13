@@ -42,7 +42,15 @@ const getArtist = async (artist_id) => {
   );
   return res.json();
 };
-const getSongsByArtist = async () => {};
+const getSongsByArtist = async (artist_id) => {
+  var res = await fetch(
+    `http://${config.server_host}:${config.server_port}/songs/artist/${artist_id}`,
+    {
+      method: "GET",
+    }
+  );
+  return res.json();
+};
 const getSongSearch = async (
   name,
   danceabilityLow,

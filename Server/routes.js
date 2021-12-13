@@ -666,8 +666,8 @@ function get_billboardsongs_by_artistid(req, res) {
 
 function get_songs_by_artistid(req, res) {
   // if id was passed in
-  if (req.query.id) {
-    const artist_id = req.query.id;
+  if (req.params["id"]) {
+    const artist_id = req.params["id"];
 
     connection.query(
       // query
