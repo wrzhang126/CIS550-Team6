@@ -671,11 +671,13 @@ function get_songs_by_artistid(req, res) {
     const artist_id = req.params["id"];
     connection.query(
       // query
-      `SELECT Artist.name AS artist , df.* FROM
-            (SELECT SA.artist_id, Song.* FROM SongArtist SA
-              JOIN Song on SA.song_id=Song.song_id) df
-              JOIN Artist ON df.artist_id
-              WHERE Artist.artist_id = '${artist_id}' LIMIT 50`,
+      `SELECT Artist.name AS artist , df.*
+        FROM   (SELECT SA.artist_id, Song.*
+                FROM    SongArtist SA
+                        JOIN Song on SA.song_id = Song.song_id
+                ) df
+                JOIN Artist ON df.artist_id = Artist.artist_id
+        WHERE Artist.artist_id = "${artist_id}"`,
       // callback
       function (error, results, fields) {
         if (error) {
@@ -691,23 +693,7 @@ function get_songs_by_artistid(req, res) {
     // else id was not passed in
   } else {
     // return an empty array
-    connection.query(
-      // query
-      `SELECT Artist.name AS artist , df.* FROM
-            (SELECT SA.artist_id, Song.* FROM SongArtist SA
-              JOIN Song on SA.song_id=Song.song_id) df
-              JOIN Artist ON df.artist_id
-              ORDER BY artist LIMIT 50`,
-      // callback
-      function (error, results, fields) {
-        if (error) {
-          console.log(error);
-          res.json({ error: error });
-        } else if (results) {
-          res.json({ results: results });
-        }
-      }
-    );
+    res.json({ results: [] });
   }
 }
 
