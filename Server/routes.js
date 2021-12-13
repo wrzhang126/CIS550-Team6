@@ -6,6 +6,7 @@ const connection = require("./db");
 // ===========================================================================
 // ROUTE FUNCTIONS
 // ===========================================================================
+
 // ------------------------------- Artist Routes -----------------------------
 function all_artists(req, res) {
   // get pagesize from query parameter; if no pagesize was given set value to 10
@@ -233,6 +234,7 @@ function awarded_artist(req, res) {
     }
   );
 }
+
 function search_billboard_ranking(req, res) {
   const pagesize = req.query.pagesize ? req.query.pagesize : 10;
   const page = req.query.page ? req.query.page : 1;
@@ -354,36 +356,86 @@ function search_spotify_ranking(req, res) {
 
 // ------------------------------- Recommendation Routes -----------------------------
 
+// CQ #4
 function get_awardstats_by_artist(req, res) {
   const pagesize = req.query.pagesize ? req.query.pagesize : 10;
   const page = req.query.page ? req.query.page : 1;
-  // get name prameter; default empty string
-  const artist_id = req.query.artist_id ? req.query.artist_id : "";
+  const offset = (page - 1) * pagesize;
 
-  connection.query(
-    // query
-    `SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs ,
-            SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify ,
-            SUM(grammyTag) AS num_songs_grammy  FROM (SELECT df2.*,
-            CASE WHEN GA.song_id IS NULL THEN 0 ELSE 1 END AS grammyTag
-            FROM (SELECT df.*, CASE WHEN SP.song_id IS NULL THEN 0 ELSE 1 END AS spotifyTag
-            FROM (SELECT SA.*, CASE WHEN BR.song_id IS NULL THEN 0 ELSE 1 END AS billboardTag FROM SongArtist SA
-            LEFT  JOIN (SELECT DISTINCT song_id FROM  BillboardRanking)BR on SA.song_id = BR.song_id) df
-            LEFT JOIN (SELECT DISTINCT song_id FROM  SpotifyRanking)SP on SP.song_id = df.song_id)  df2
-            LEFT JOIN (SELECT DISTINCT song_id FROM GrammyAwards) GA on GA.song_id = df2.song_id) df3
+  if (req.query.artist_id) {
+
+    const artist_id = req.query.artist_id;
+
+    connection.query(
+        // query
+        `SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs , SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify , SUM(grammyTag) AS num_songs_grammy
+        FROM   (SELECT df2.*, CASE WHEN GA.song_id IS NULL THEN 0 ELSE 1 END AS grammyTag
+            FROM   (SELECT df.*, CASE WHEN SP.song_id IS NULL THEN 0 ELSE 1 END AS spotifyTag
+                    FROM   (SELECT SA.*, CASE WHEN BR.song_id IS NULL THEN 0 ELSE 1 END AS billboardTag
+                            FROM    SongArtist SA
+                                    LEFT JOIN ( SELECT DISTINCT song_id
+                                                FROM  BillboardRanking)BR
+                                    ON SA.song_id = BR.song_id
+                            ) df
+                            LEFT JOIN ( SELECT DISTINCT song_id
+                                        FROM  SpotifyRanking)SP
+                            ON SP.song_id = df.song_id
+                    ) df2
+                    LEFT JOIN ( SELECT DISTINCT song_id
+                                FROM GrammyAwards) GA
+                    ON GA.song_id = df2.song_id
+            ) df3
             JOIN Artist ON Artist.artist_id = df3.artist_id
-            WHERE df3.artist_id = '${artist_id}'
-            GROUP BY (df3.artist_id)`,
-    // callback
-    function (error, results, fields) {
-      if (error) {
-        console.log(error);
-        res.json({ error: error });
-      } else if (results) {
-        res.json({ results: results });
-      }
-    }
-  );
+        WHERE df3.artist_id = '${artist_id}'
+        GROUP BY (df3.artist_id)`,
+        // callback
+        function (error, results, fields) {
+        if (error) {
+            console.log(error);
+            res.json({ error: error });
+        } else if (results) {
+            res.json({ results: results });
+        }
+        }
+    );
+
+  // else id was not passed in
+  } else {
+
+    connection.query(
+        // query
+        `SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs , SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify , SUM(grammyTag) AS num_songs_grammy
+        FROM   (SELECT df2.*, CASE WHEN GA.song_id IS NULL THEN 0 ELSE 1 END AS grammyTag
+            FROM   (SELECT df.*, CASE WHEN SP.song_id IS NULL THEN 0 ELSE 1 END AS spotifyTag
+                    FROM   (SELECT SA.*, CASE WHEN BR.song_id IS NULL THEN 0 ELSE 1 END AS billboardTag
+                            FROM    SongArtist SA
+                                    LEFT JOIN ( SELECT DISTINCT song_id
+                                                FROM  BillboardRanking)BR
+                                    ON SA.song_id = BR.song_id
+                            ) df
+                            LEFT JOIN ( SELECT DISTINCT song_id
+                                        FROM  SpotifyRanking)SP
+                            ON SP.song_id = df.song_id
+                    ) df2
+                    LEFT JOIN ( SELECT DISTINCT song_id
+                                FROM GrammyAwards) GA
+                    ON GA.song_id = df2.song_id
+            ) df3
+            JOIN Artist ON Artist.artist_id = df3.artist_id
+        GROUP BY (df3.artist_id)
+        ORDER BY num_songs_spotify DESC
+        LIMIT ${offset}, ${pagesize}`,
+        // callback
+        function (error, results, fields) {
+        if (error) {
+            console.log(error);
+            res.json({ error: error });
+        } else if (results) {
+            res.json({ results: results });
+        }
+        }
+    );
+  }
 }
 
 function search_grammy_songs(req, res) {
