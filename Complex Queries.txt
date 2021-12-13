@@ -1,0 +1,71 @@
+// To-Do: 1. Merge 1 and 4 possibly, add 1-3 to routes (the remaining are already in routes), further optimize queries, add artists to 4-7 using PIVOT
+
+
+// 1. Get total number of songs that appear in Spotify and Billboard ranking for consecutive weeks by artist
+SELECT df.artist_id, Artist.name AS artist, SUM(SpotifyTag) AS total_spotify_consec, SUM(billboardTag)  AS total_billboard_consec FROM (SELECT SA.artist_id ,
+CASE WHEN SP.song_id IS NULL THEN 0 ELSE 1 END AS SpotifyTag , CASE WHEN BR.song_id IS NULL THEN 0 ELSE 1 END AS billboardTag
+FROM SongArtist SA LEFT JOIN (SELECT DISTINCT r1.song_id
+FROM BillboardRanking r1
+INNER JOIN BillboardRanking r2 ON r1.song_id = r2.song_id AND DATEDIFF(r1.week, r2.week) = 7) BR
+ON SA.song_id = BR.song_id
+LEFT JOIN (SELECT DISTINCT r1.song_id
+FROM SpotifyRanking r1
+INNER JOIN SpotifyRanking r2 ON r1.song_id = r2.song_id AND DATEDIFF(r1.week, r2.week) = 7) SP
+ON SA.song_id = SP.song_id) df
+JOIN Artist on df.artist_id = Artist.artist_id
+GROUP BY df.artist_id
+HAVING SUM(SpotifyTag) > 0 OR SUM(billboardTag) > 0;
+
+// 2. Get all songs at the artist level that appear in Spotify Ranking for consecutive weeks and for how many weeks
+SELECT SA.artist_id, Artist.name AS artist, df.* FROM (SELECT s.song_id, s.title, MAX(r1.week) as last_week , MIN(r2.week) AS first_week, COUNT(*) AS num_consec_weeks
+FROM SpotifyRanking r1
+INNER JOIN SpotifyRanking r2 ON r1.song_id = r2.song_id AND DATEDIFF(r1.week, r2.week) = 7
+INNER JOIN Song s ON r1.song_id = s.song_id
+GROUP BY s.song_id) df
+JOIN SongArtist SA ON df.song_id=SA.song_id
+JOIN Artist ON SA.artist_id=Artist.artist_id
+ORDER BY artist;
+
+// 3. Get all songs at the artist level that appear in Billboard Ranking for consecutive weeks and for how many weeks
+SELECT SA.artist_id, Artist.name AS artist, df.* FROM (SELECT s.song_id, s.title, MAX(r1.week) as last_week , MIN(r2.week) AS first_week, COUNT(*) AS num_consec_weeks
+FROM BillboardRanking r1
+INNER JOIN BillboardRanking r2 ON r1.song_id = r2.song_id AND DATEDIFF(r1.week, r2.week) = 7
+INNER JOIN Song s ON r1.song_id = s.song_id
+GROUP BY s.song_id) df
+JOIN SongArtist SA ON df.song_id=SA.song_id
+JOIN Artist ON SA.artist_id=Artist.artist_id
+ORDER BY artist;
+
+// 4. Get total number of songs, spotify ranked, billboard ranked, grammy songs by each artist
+SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs , SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify , SUM(grammyTag) AS num_songs_grammy  FROM (SELECT df2.*, CASE WHEN GA.song_id IS NULL THEN 0 ELSE 1 END AS grammyTag FROM (SELECT df.*, CASE WHEN SP.song_id IS NULL THEN 0 ELSE 1 END AS spotifyTag FROM (SELECT SA.*, CASE WHEN BR.song_id IS NULL THEN 0 ELSE 1 END AS billboardTag FROM SongArtist SA
+LEFT  JOIN (SELECT DISTINCT song_id FROM  BillboardRanking)BR on SA.song_id = BR.song_id) df
+LEFT JOIN (SELECT DISTINCT song_id FROM  SpotifyRanking)SP on SP.song_id = df.song_id)  df2
+LEFT JOIN (SELECT DISTINCT song_id FROM GrammyAwards) GA on GA.song_id = df2.song_id) df3
+JOIN Artist ON Artist.artist_id = df3.artist_id
+GROUP BY (df3.artist_id) ORDER BY num_songs_spotify DESC
+
+// 5. Get all spotify ranked songs at the artist level
+SELECT df2.artist_id, df2.artist, df2.latestweek, Song.*
+FROM (SELECT df.* , Artist.name AS artist FROM
+(SELECT DISTINCT BillboardRanking.song_id,
+MAX(BillboardRanking.week) as latestweek , SA.artist_id
+FROM BillboardRanking JOIN SongArtist SA
+    ON BillboardRanking.song_id = SA.song_id GROUP BY BillboardRanking.song_id) df
+    JOIN Artist ON df.artist_id=Artist.artist_id) df2 JOIN Song ON Song.song_id=df2.song_id ORDER BY artist
+
+// 6. Get all billboard ranked songs at the artist level
+SELECT df2.artist_id, df2.artist, df2.latestweek, Song.*
+FROM (SELECT df.* , Artist.name AS artist FROM
+(SELECT DISTINCT SpotifyRanking.song_id, MAX(SpotifyRanking.week) as latestweek , SA.artist_id
+FROM SpotifyRanking JOIN SongArtist SA ON SpotifyRanking.song_id = SA.song_id GROUP BY SpotifyRanking.song_id) df
+JOIN Artist ON df.artist_id=Artist.artist_id) df2 JOIN Song ON Song.song_id=df2.song_id ORDER BY artist
+
+// 7. Get all grammy songs at the artist level
+SELECT df2.*, Song.* FROM
+              (SELECT df.award, df.year, df.artist_id , Artist.name AS artist, df.song_id FROM
+              (SELECT GA.*,
+              SA.artist_id FROM GrammyAwards GA
+              JOIN SongArtist SA
+              ON GA.song_id = SA.song_id) df
+              JOIN Artist ON df.artist_id=Artist.artist_id) df2
+              JOIN Song ON Song.song_id=df2.song_id ORDER BY artist

@@ -61,62 +61,82 @@ class SearchBySongPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedSongDetail: {
-        loudness: -10,
-        danceability: 0,
-        tempo: 0,
-        energy: 0,
-        liveness: 0,
-      },
-      selectedSongInfo: null,
-      songsResults: [],
-      pagination: null,
-      selectedSongId: window.location.search
-        ? window.location.search.substring(1).split("=")[1]
-        : "0001Lyv0YTjkZSqzT4WkLy",
-      nameQuery: "",
-      startYearQuery: "",
-      endYearQuery: "",
-      danceabilityLowQuery: 0,
-      danceabilityHighQuery: 1,
-    };
-    this.handleNameQueryChange = this.handleNameQueryChange.bind(this);
-    this.handleStartYearQueryChange =
-      this.handleStartYearQueryChange.bind(this);
-    this.handleEndYearQueryChange = this.handleEndYearQueryChange.bind(this);
-    this.handleDanceabilityChange = this.handleDanceabilityChange.bind(this);
-    this.updateSearchResults = this.updateSearchResults.bind(this);
-  }
-  handleNameQueryChange(event) {
-    this.setState({ nameQuery: event.target.value });
-  }
-  handleStartYearQueryChange(value) {
-    this.setState({ startYearQuery: value });
-  }
-  handleEndYearQueryChange(value) {
-    this.setState({ endYearQuery: value });
-  }
-  handleDanceabilityChange(value) {
-    this.setState({ danceabilityLowQuery: value[0] });
-    this.setState({ danceabilityHighQuery: value[1] });
-  }
-  updateSearchResults() {
-    getSongSearch(
-      this.state.nameQuery,
-      this.state.startYearQuery,
-      this.state.endYearQuery,
-      null,
-      null
-    ).then((res) => {
-      this.setState({ songsResults: res.results });
-    });
-  }
+selectedSongDetail : {"loudness" : -10, "danceability" : 0, "tempo" : 0, "energy" : 0, "liveness" : 0},
+        selectedSongInfo : null,
+        songsResults : [],
+        pagination : null,
+        selectedSongId: window.location.search ? window.location.search.substring(1).split('=')[1] : "0001Lyv0YTjkZSqzT4WkLy",
+        nameQuery : '',
+        startYearQuery : '',
+        endYearQuery : '',
+        danceabilityLowQuery : 0,
+        danceabilityHighQuery : 1,
+        energyLowQuery : 0,
+        energyHighQuery : 1,
+        livenessLowQuery : 0,
+        livenessHighQuery : 1,
+        tempoLowQuery : 0,
+        tempoHighQuery : 1,
+        valenceLowQuery : 0,
+        valenceHighQuery : 1
+        
+    }
+    this.handleNameQueryChange = this.handleNameQueryChange.bind(this)
+    this.handleStartYearQueryChange = this.handleStartYearQueryChange.bind(this)
+    this.handleEndYearQueryChange = this.handleEndYearQueryChange.bind(this)
+    this.handleDanceabilityChange = this.handleDanceabilityChange.bind(this)
+    this.handleEnergyChange = this.handleEnergyChange.bind(this)
+    this.handleLivenessChange = this.handleLivenessChange.bind(this)
+    this.handleTempoChange = this.handleTempoChange.bind(this)
+    this.handleValenceChange = this.handleValenceChange.bind(this)
+    this.updateSearchResults = this.updateSearchResults.bind(this)
+    this.onAfterChange = this.onAfterChange.bind(this)
+}
+handleNameQueryChange(event) {
+  this.setState({ nameQuery: event.target.value })
+}
+handleStartYearQueryChange(value){
+  this.setState({startYearQuery : value})
+}
+handleEndYearQueryChange(value){
+  this.setState({endYearQuery : value})
+}
+handleDanceabilityChange(value){
+  this.setState({ danceabilityLowQuery: value[0] })
+  this.setState({ danceabilityHighQuery: value[1] })
+}
+handleEnergyChange(value){
+  this.setState({ energyLowQuery: value[0] })
+  this.setState({ energyHighQuery: value[1] })
+}
+handleLivenessChange(value){
+  this.setState({ livenessLowQuery: value[0] })
+  this.setState({ livenessHighQuery: value[1] })
+}
+handleTempoChange(value){
+  this.setState({ tempoLowQuery: value[0] })
+  this.setState({ tempoHighQuery: value[1] })
+}
+handleValenceChange(value){
+  this.setState({ valenceLowQuery: value[0] })
+  this.setState({ valenceHighQuery: value[1] })
+}
+updateSearchResults() {
 
-  componentDidMount() {
-    getAllSongs().then((res) => {
-      console.log(res.results);
-      this.setState({ songsResults: res.results });
-    });
+  getSongSearch(this.state.nameQuery, this.state.danceabilityLowQuery, this.state.danceabilityHighQuery, this.state.energyLowQuery, this.state.energyHighQuery,
+    this.state.livenessLowQuery, this.state.livenessHighQuery, this.state.tempoLowQuery, this.state.tempoHighQuery, 
+    this.state.valenceLowQuery, this.state.valenceHighQuery, this.state.startYearQuery, this.state.endYearQuery, null, null).then(res => {
+      this.setState({ songsResults: res.results })
+  })
+}
+onAfterChange(value) {
+  console.log('onAfterChange: ', value);
+}
+componentDidMount() {
+  getAllSongs().then(res => {
+    console.log(res.results)
+    this.setState({ songsResults: res.results })
+  })
 
     getSong(this.state.selectedSongId).then((res) => {
       this.setState({ selectedSongInfo: res.results[0] });
@@ -213,21 +233,22 @@ class SearchBySongPage extends React.Component {
                       <Select.Option value="2015">2015</Select.Option>
                       <Select.Option value="2020">2020</Select.Option>
                     </Select>
-                  </FormGroup>
-                  <div style={{ fontWeight: "bold", textAlign: "left" }}>
-                    {" "}
-                    Songs attributes{" "}
-                  </div>
-                  <FormGroup style={{ width: "90%", margin: "auto" }}>
-                    <label> Danceability</label>
-                    <Slider
-                      range
-                      defaultValue={[0, 1]}
-                      onChange={this.handleDanceabilityChange}
-                    />
-                  </FormGroup>
-                </Form>
-              </div>
+
+                </FormGroup>
+                <div style={{ fontWeight: 'bold', textAlign: "left"}}> Songs attributes </div>
+                <FormGroup style={{width : '90%', margin : "auto"}}>
+                  <label> Danceability</label>
+                  <Slider range min ={0} max = {1} step={0.01} defaultValue={[this.state.danceabilityLowQuery, this.state.danceabilityHighQuery]} onChange={this.handleDanceabilityChange}/>
+                  <label> Energy</label>
+                  <Slider range min ={0} max = {1} step={0.01}defaultValue={[0, 1]} onChange={this.handleEnergyChange} onAfterChange={this.onAfterChange}/>
+                  <label> Liveness</label>
+                  <Slider range min ={0} max = {1} step={0.01}defaultValue={[0, 1]} onChange={this.handleLivenessChange}/>
+                  <label> Tempo</label>
+                  <Slider range min ={0} max = {10} step={1}defaultValue={[0, 10]} onChange={this.handleTempoChange}/>
+                  <label> Valence</label>
+                  <Slider range min ={0} max = {1} step={0.01}defaultValue={[0, 1]} onChange={this.handleValenceChange}/>
+                </FormGroup>
+              </Form>
             </div>
           </div>
 
@@ -252,107 +273,35 @@ class SearchBySongPage extends React.Component {
             />
             <Card id="filter-container">
               <CardBody>
-                <Row gutter="15" align="top" justify="top">
-                  <Col
-                    flex={2}
-                    style={{ textAlign: "middle", margin: "30px 30px" }}
-                  >
-                    <h1>
-                      {this.state.selectedSongInfo
-                        ? this.state.selectedSongInfo.title
-                        : ""}
-                    </h1>
-                    <br></br>
-                    <h5>
-                      SongID :{" "}
-                      {this.state.selectedSongInfo
-                        ? this.state.selectedSongInfo.song_id
-                        : ""}
-                    </h5>
-                    <h5>
-                      Album:{" "}
-                      {this.state.selectedSongInfo
-                        ? this.state.selectedSongInfo.album
-                        : ""}
-                    </h5>
-                    <h5>
-                      Release Year:{" "}
-                      {this.state.selectedSongInfo
-                        ? this.state.selectedSongInfo.year
-                        : ""}
-                    </h5>
-                  </Col>
-                  <Col>
-                    <RadarChart
-                      data={[
-                        this.state.selectedSongInfo
-                          ? this.state.selectedSongInfo
-                          : this.state.selectedSongDetail,
-                      ]}
-                      tickFormat={(t) => wideFormat(t)}
-                      startingAngle={0}
-                      domains={[
-                        {
-                          name: "Loudness",
-                          domain: [-10, 8],
-                          getValue: (d) => (d.loudness ? d.loudness : 0),
-                        },
-                        {
-                          name: "Danceability",
-                          domain: [0, 1],
-                          getValue: (d) => d.danceability,
-                        },
-                        {
-                          name: "Tempo",
-                          domain: [0, 10],
-                          getValue: (d) => d.tempo,
-                        },
-                        {
-                          name: "Liveness",
-                          domain: [0, 1],
-                          getValue: (d) => d.liveness,
-                        },
-                        {
-                          name: "Energy",
-                          domain: [0, 1],
-                          getValue: (d) => d.energy,
-                        },
-                      ]}
-                      width={450}
-                      height={400}
-                    />
-                  </Col>
-                </Row>
+                  <Row gutter='15' align='top' justify='top'>
+                      <Col flex={2} style={{ textAlign: 'middle', margin: '30px 30px' }}>
+                      <h1>{this.state.selectedSongInfo ? this.state.selectedSongInfo.title : ""}</h1>
+                      <br></br>
+                      <h5>SongID : {this.state.selectedSongInfo ? this.state.selectedSongInfo.song_id : ""}</h5>
+                      <h5>Album: {this.state.selectedSongInfo ? this.state.selectedSongInfo.album : ""}</h5>
+                      <h5>Release Year: {this.state.selectedSongInfo ? this.state.selectedSongInfo.year : ""}</h5>
+                      </Col>
+                      <Col>
+                      <RadarChart
+                        data={[this.state.selectedSongInfo ? this.state.selectedSongInfo : this.state.selectedSongDetail]}
+                        tickFormat={t => wideFormat(t)}
+                        startingAngle={0}
+                        domains={[
+                            { name: 'Valence', domain: [0, 1], getValue: d => d.valence ? d.valence : 0 },
+                            { name: 'Danceability', domain: [0, 1], getValue: d => d.danceability },
+                            { name: 'Tempo', domain: [0, 10], getValue: d => d.tempo },
+                            { name: 'Liveness', domain: [0, 1], getValue: d => d.liveness},
+                            { name: 'Energy', domain: [0, 1], getValue: d => d.energy },
+                        ]}
+                        width={450}
+                        height={400}
+                                  
+                      />
+                      </Col>
+                  </Row>
               </CardBody>
             </Card>
-            <Card
-              id="filter-container"
-              style={{ width: "70vw%", marginTop: "2vh" }}
-            >
-              <CardBody>
-                <Row gutter="300" align="left">
-                  <Col>
-                    <h2>Grammy</h2>
-                    <br></br>
-                    <h5>award:</h5>
-                    <h5>year:</h5>
-                  </Col>
-                  <Col>
-                    <h2>Spotify</h2>
-                    <br></br>
-                    <h5>rank:</h5>
-                    <h5>stream:</h5>
-                  </Col>
-                  <Col>
-                    <h2>BillBoard</h2>
-                    <br></br>
-                    <h5>rank:</h5>
-                    <h5>top rank:</h5>
-                  </Col>
-                </Row>
-              </CardBody>
-            </Card>
-          </div>
+         </div>
         </div>
       </div>
     );
