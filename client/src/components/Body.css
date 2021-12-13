@@ -4,3 +4,8 @@
 .th {
   color: #0d6efd;
 }
+
+#test {
+  filter: blur(10px);
+  -webkit-filter: blur(8px);
+}

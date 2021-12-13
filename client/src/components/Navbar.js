@@ -1,10 +1,11 @@
-import Navbar from 'react-bootstrap/Navbar';
-import Container from 'react-bootstrap/Container';
-import Button from 'react-bootstrap/Button';
-import Nav from 'react-bootstrap/Nav';
-import FormControl from 'react-bootstrap/FormControl';
-import Form from 'react-bootstrap/Form';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React from "react";
+import Navbar from "react-bootstrap/Navbar";
+import Container from "react-bootstrap/Container";
+import Button from "react-bootstrap/Button";
+import Nav from "react-bootstrap/Nav";
+import FormControl from "react-bootstrap/FormControl";
+import Form from "react-bootstrap/Form";
+import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
 
 export default function Navigationbar() {
@@ -39,6 +40,5 @@ export default function Navigationbar() {
         </Container>
       </Navbar>
     </div>
-   
   );
 }

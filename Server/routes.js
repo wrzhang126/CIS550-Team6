@@ -231,10 +231,9 @@ function search_artists(req, res) {
 
 function get_artist_by_id(req, res) {
     // if id was passed in
-    if (req.query.id) {
+    if (req.params["id"]) {
         // get id
-        const artist_id = req.query.id
-
+        const artist_id = req.params["id"]
         connection.query(
             // query
             `SELECT *
