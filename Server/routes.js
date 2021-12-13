@@ -502,15 +502,9 @@ function get_awardstats_by_artist(req, res) {
     const pagesize = req.query.pagesize ? req.query.pagesize : 10
     const page = req.query.page ? req.query.page : 1
     // get name prameter; default empty string
-    const artistname = req.query.name ? req.query.name : "%%"
+    const artist_id = req.query.artist_id ? req.query.artist_id : ""
 
-
-    // if id was passed in
-    if (req.query.artistname && !isNan(req.query.artisname)) {
-
-        const artist_id = req.query.id
-
-        connection.query(
+    connection.query(
             // query
             `SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs ,
             SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify ,
@@ -522,7 +516,7 @@ function get_awardstats_by_artist(req, res) {
             LEFT JOIN (SELECT DISTINCT song_id FROM  SpotifyRanking)SP on SP.song_id = df.song_id)  df2
             LEFT JOIN (SELECT DISTINCT song_id FROM GrammyAwards) GA on GA.song_id = df2.song_id) df3
             JOIN Artist ON Artist.artist_id = df3.artist_id
-            WHERE artist LIKE '${artistname}'
+            WHERE df3.artist_id = '${artist_id}'
             GROUP BY (df3.artist_id)`,
             // callback
             function (error, results, fields) {
@@ -534,35 +528,6 @@ function get_awardstats_by_artist(req, res) {
                 }
             }
         );
-    // else id was not passed in
-    } else {
-        // return an empty array
-        connection.query(
-            // query
-            `SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs ,
-            SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify ,
-            SUM(grammyTag) AS num_songs_grammy  FROM (SELECT df2.*,
-            CASE WHEN GA.song_id IS NULL THEN 0 ELSE 1 END AS grammyTag
-            FROM (SELECT df.*, CASE WHEN SP.song_id IS NULL THEN 0 ELSE 1 END AS spotifyTag
-            FROM (SELECT SA.*, CASE WHEN BR.song_id IS NULL THEN 0 ELSE 1 END AS billboardTag FROM SongArtist SA
-            LEFT  JOIN (SELECT DISTINCT song_id FROM  BillboardRanking)BR on SA.song_id = BR.song_id) df
-            LEFT JOIN (SELECT DISTINCT song_id FROM  SpotifyRanking)SP on SP.song_id = df.song_id)  df2
-            LEFT JOIN (SELECT DISTINCT song_id FROM GrammyAwards) GA on GA.song_id = df2.song_id) df3
-            JOIN Artist ON Artist.artist_id = df3.artist_id
-            GROUP BY (df3.artist_id)
-            ORDER BY artist
-            LIMIT ${offset}, ${pagesize}`,
-            // callback
-            function (error, results, fields) {
-                if (error) {
-                    console.log(error)
-                    res.json({ error: error })
-                } else if (results) {
-                    res.json({ results: results })
-                }
-            }
-        );
-    }
 }
 
 function search_grammy_songs(req, res) {
@@ -635,24 +600,24 @@ function get_billboardsongs_by_artistid(req, res) {
     const name = req.query.name ? req.query.name : "%%"
 
     // if id was passed in
-    if (req.query.id) {
+    if (req.query.artist_id) {
 
-        const artist_id = req.query.id
+        const artist_id = req.query.artist_id
 
         connection.query(
             // query
-            `SELECT df2.artist_id, df2.artist, df2.latestweek, Song.* FROM
+            `SELECT df2.artist_id, df2.artist, df2.latestweek, num, Song.* FROM
               (SELECT df.* , Artist.name AS artist FROM
-              (SELECT DISTINCT BillboardRanking.song_id, MAX(BillboardRanking.week) as latestweek ,
+              (SELECT DISTINCT BillboardRanking.song_id, MAX(BillboardRanking.week) as latestweek , count(BillboardRanking.week) AS num,
               SA.artist_id FROM BillboardRanking
               JOIN SongArtist SA
               ON BillboardRanking.song_id = SA.song_id
               WHERE SA.artist_id = "${artist_id}"
-              GROUP BY BillboardRanking.song_id) df
+              GROUP BY BillboardRanking.song_id, SA.artist_id) df
               JOIN Artist ON df.artist_id=Artist.artist_id) df2
               JOIN Song ON Song.song_id=df2.song_id
               WHERE Song.title LIKE '${name}'
-              ORDER BY artist`,
+              ORDER BY num DESC`,
             // callback
             function (error, results, fields) {
                 if (error) {
@@ -674,12 +639,11 @@ function get_billboardsongs_by_artistid(req, res) {
             SA.artist_id FROM BillboardRanking
             JOIN SongArtist SA
             ON BillboardRanking.song_id = SA.song_id
-            GROUP BY BillboardRanking.song_id) df
+            GROUP BY BillboardRanking.song_id, SA.artist_id) df
             JOIN Artist ON df.artist_id=Artist.artist_id) df2
             JOIN Song ON Song.song_id=df2.song_id
             WHERE Song.title LIKE '${name}'
-            ORDER BY artist
-            LIMIT ${offset}, ${pagesize}`,
+            ORDER BY artist`,
             // callback
             function (error, results, fields) {
                 if (error) {
@@ -812,12 +776,12 @@ function get_grammysongs_by_artistid(req, res) {
     const pagesize = req.query.pagesize ? req.query.pagesize : 10
     const page = req.query.page ? req.query.page : 1
     // get name prameter; default empty string
-    const name = req.query.name ? req.query.name : ""
+    const name = req.query.name ? req.query.name : "%%"
 
     // if id was passed in
-    if (req.query.id) {
+    if (req.query.artist_id) {
 
-        const artist_id = req.query.id
+        const artist_id = req.query.artist_id
 
         connection.query(
             // query
@@ -825,12 +789,10 @@ function get_grammysongs_by_artistid(req, res) {
               (SELECT df.award, df.year, df.artist_id , Artist.name AS artist, df.song_id FROM
               (SELECT GA.*,
               SA.artist_id FROM GrammyAwards GA
-              JOIN SongArtist SA
-              WHERE SA.artist_id = "${artist_id}"
-              ON GA.song_id = SA.song_id) df
+              JOIN SongArtist SA             
+              ON GA.song_id = SA.song_id WHERE SA.artist_id = "${artist_id}") df
               JOIN Artist ON df.artist_id=Artist.artist_id) df2
               JOIN Song ON Song.song_id=df2.song_id
-              WHERE Song.title LIKE '${name}'
               ORDER BY year DESC`,
             // callback
             function (error, results, fields) {
@@ -855,8 +817,7 @@ function get_grammysongs_by_artistid(req, res) {
               ON GA.song_id = SA.song_id) df
               JOIN Artist ON df.artist_id=Artist.artist_id) df2
               JOIN Song ON Song.song_id=df2.song_id
-              ORDER BY artist
-              LIMIT ${offset}, ${pagesize}`,
+              ORDER BY artist`,
             // callback
             function (error, results, fields) {
                 if (error) {
