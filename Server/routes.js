@@ -893,5 +893,6 @@ module.exports = {
     search_spotify_ranking,
     get_billboardsongs_by_artistid,
     get_spotifysongs_by_artistid,
-    get_grammysongs_by_artistid
+    get_grammysongs_by_artistid,
+    get_awardstats_by_artist
 }
