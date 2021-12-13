@@ -610,6 +610,8 @@ function get_songs_by_artistid(req, res) {
   }
 }
 
+// ------------------ CQ #6 -------------------
+// --------------------------------------------
 function get_spotifysongs_by_artistid(req, res) {
   const pagesize = req.query.pagesize ? req.query.pagesize : 10;
   const page = req.query.page ? req.query.page : 1;
