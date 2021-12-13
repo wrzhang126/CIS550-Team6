@@ -361,7 +361,43 @@ function get_song_by_id(req, res) {
 }
 
 // ------------------------------- Ranking Routes -----------------------------
-
+function awarded_artist(req, res) {
+    
+    // get pagesize from query parameter; if no pagesize was given set value to 10
+    var pagesize = req.query.pagesize ? req.query.pagesize : 100;
+    // get page number; if no page number was given set value to 1
+    var page = req.query.page ? req.query.page : 1;
+    var start = (page - 1) * pagesize;
+    connection.query(
+        // query
+        `SELECT a.*
+            FROM SongArtist sa
+            INNER JOIN (
+                SELECT s.song_id
+                FROM Song s
+                        INNER JOIN BillboardRanking b ON s.song_id = b.song_id
+                UNION
+                SELECT s.song_id
+                FROM Song s
+                        INNER JOIN GrammyAwards GA on s.song_id = GA.song_id
+                UNION
+                SELECT s.song_id
+                FROM Song s
+                        INNER JOIN SpotifyRanking SR on s.song_id = SR.song_id
+            ) s ON sa.song_id = s.song_id
+            INNER JOIN Artist a ON sa.artist_id = a.artist_id
+            LIMIT 200`, 
+        // callback
+        function (error, results, fields) {
+            if (error) {
+                console.log(error)
+                res.json({ error: error })
+            } else if (results) {
+                res.json({ results: results })
+            }
+        }
+    );
+}
 function search_billboard_ranking(req, res) {
 
     const pagesize = req.query.pagesize ? req.query.pagesize : 10
@@ -850,6 +886,7 @@ module.exports = {
     get_song_by_id,
     all_songs,
     search_songs,
+    awarded_artist,
     get_songs_by_artistid,
     search_billboard_ranking,
     search_grammy_songs,
