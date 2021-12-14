@@ -8,10 +8,11 @@ import {
   getArtistById,
   getArtistStats,
   getArtist,
+  getSpotifyRankedSongs
 } from "../fetcher";
 import React, { useState } from "react";
 import "./Filter.css";
-import { Table, Carousel, Tabs, Card } from "antd";
+import { Table, Carousel, Tabs, Card, List } from "antd";
 import { format } from "d3-format";
 import { useEffect } from "react";
 
@@ -70,6 +71,7 @@ export default function RankingPage() {
   const [artistsStats, setArtistsStats] = useState([]);
   const [billboardSongs, setBillboardSongs] = useState([]);
   const [grammySongs, setGrammySongs] = useState([]);
+  const [spotifySongs, setSpotifySongs] = useState([]);
   const [selectedArtistId, setSelectedArtistId] = useState(
     "0du5cEVh5yTK9QJze8zA0C");
   const [awardStat, setAwardStat] = useState(null);
@@ -81,18 +83,27 @@ export default function RankingPage() {
     console.log(record);
 
     getAwardStat(record.artist_id).then((res) => {
+      console.log("award stats:")
       console.log(res.results);
       setAwardStat(res.results[0]);
     });
     getBillboardSongs(record.artist_id).then((res) => {
+      console.log("billboard songs:")
       console.log(res.results);
       setBillboardSongs(res.results);
     });
     getGrammySongs(record.artist_id).then((res) => {
+      console.log("grammy songs:")
       console.log(res.results);
       setGrammySongs(res.results);
     });
+    getSpotifyRankedSongs(record.artist_id).then((res) => {
+      console.log("spotify ranked songs:")
+      console.log(res.results);
+      setSpotifySongs(res.results);
+    });
     getArtist(record.artist_id).then((res) => {
+      console.log("artist info:")
       console.log(res.results);
       setArtistInfo(res.results[0]);
     });
@@ -103,55 +114,129 @@ export default function RankingPage() {
   };
 
   useEffect(() => {
-    getAwardedArtists().then((res) => {
-      console.log(res.results);
-      setArtistsResults(res.results);
-    });
+    // getAwardedArtists().then((res) => {
+    //   console.log(res.results);
+    //   setArtistsResults(res.results);
+    // });
     getArtistStats().then((res) => {
       console.log(res.results);
       setArtistsStats(res.results);
       setLoader(false);
     });
 
-    getAwardStat(selectedArtistId).then((res) => {
-      console.log(res.results);
-      setAwardStat(res.results[0]);
-    });
-    getBillboardSongs(selectedArtistId).then((res) => {
-      console.log(res.results);
-      setBillboardSongs(res.results);
-    });
-    getGrammySongs(selectedArtistId).then((res) => {
-      console.log(res.results);
-      setGrammySongs(res.results);
-    });
-    getArtistById(selectedArtistId).then((res) => {
-      console.log(res.results);
-      setArtistInfo(res.results[0]);
-    });
+    // getAwardStat(selectedArtistId).then((res) => {
+    //   console.log(res.results);
+    //   setAwardStat(res.results[0]);
+    // });
+    // getBillboardSongs(selectedArtistId).then((res) => {
+    //   console.log(res.results);
+    //   setBillboardSongs(res.results);
+    // });
+    // getGrammySongs(selectedArtistId).then((res) => {
+    //   console.log(res.results);
+    //   setGrammySongs(res.results);
+    // });
+    // getArtistById(selectedArtistId).then((res) => {
+    //   console.log(res.results);
+    //   setArtistInfo(res.results[0]);
+    // });
   }, []);
 
   const tabList = [
     {
       key: "tab1",
-      tab: "tab1",
+      tab: "Overview",
     },
     {
       key: "tab2",
-      tab: "tab2",
+      tab: "Spotify Ranked Songs",
+    },
+    {
+      key: "tab3",
+      tab: "Billboard Ranked Songs",
+    },
+    {
+      key: "tab4",
+      tab: "Grammy Awards",
     },
   ];
 
   const contentList = {
     tab1: (
       <div>
-        <p> Grammy Award : {awardStat ? awardStat.num_songs_grammy : 0}</p>
-        <p> Billboard : {awardStat ? awardStat.num_songs_billboard : 0}</p>
-        <p> Spotify : {awardStat ? awardStat.num_songs_spotify : 0}</p>
+        <p> Number of Spotify Ranked Songs: {awardStat ? awardStat.num_songs_spotify : ""}</p>
+        <p> Number of Billboard Ranked Songs : {awardStat ? awardStat.num_songs_billboard : ""}</p>
+        <p> Number of Grammy Awards : {awardStat ? awardStat.num_songs_grammy : ""}</p>
       </div>
     ),
+    tab2: (
+        // <div>
+        //     {spotifySongs.length > 0 ?
+        //         spotifySongs.map((song) => {
+        //             return(
+        //                 <div >   
+        //                     <p> Name : {song.title}</p>
+        //                     <p> Most Recent Time on Board : {song.latestweek}</p>
+        //                     <p> Times on Board : {song.num} </p>
+        //                 </div> 
+        //             )
+        //         })
+        //     : null}        
+        // </div>
+        <List
+            size="small"
+            header={<div>Songs</div>}
+            // footer={<div>Footer</div>}
+            pagination
+            bordered
+            dataSource={spotifySongs}
+            renderItem={song=> <List.Item>
+                <div >   
+                    <p> Name : {song.title}</p>
+                    <p> Most Recent Time on Board : {song.latestweek}</p>
+                    <p> Times on Board : {song.num} </p>
+                </div> 
+            </List.Item>}
+        />
+    ),
+    tab3: (
+        <div>
+            {billboardSongs.length > 0 ?
+                billboardSongs.map((song) => {
+                    return(
+                        <div >   
+                            <a href={"https://open.spotify.com/track/"+song.song_id} target="_blank"> Track Title : {song.title}</a>
+                            <p> Most Recent Time on Board : {song.latestweek}</p>
+                            <p> Times on Board : {song.num} </p>
+                            <iframe 
+                                src={"https://open.spotify.com/embed/track/"+song.song_id} 
+                                width="300" 
+                                height="380" 
+                                frameborder="0" 
+                                allowtransparency="true" 
+                                allow="encrypted-media"></iframe>
+                        </div> 
+                    )
+                })
+            : null}        
+        </div>
+    ),
+    tab4: (
+        <div>
+            {grammySongs.length > 0 ?
+                grammySongs.map((song) => {
+                    return(
+                        <div >   
+                            <p> Song Name : {song.title}</p>
+                            <p> Award : {song.award}</p>
+                            <p> Year Received : {song.year} </p>
+                        </div> 
+                    )
+                })
+            : null}        
+        </div>
+    ),
 
-    tab2: <p>content2</p>,
   };
 
   return (
@@ -187,7 +272,7 @@ export default function RankingPage() {
           //   cover={
           //     <img alt="example" src={artistInfo ? artistInfo.image_url : ""} />
           //   }
-          title="Card title"
+          title={artistInfo ? artistInfo.name : ""}
           // extra={<a href="#">More</a>}
           tabList={tabList}
           activeTabKey={activeTab}
