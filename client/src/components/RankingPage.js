@@ -1,26 +1,26 @@
 import Navigationbar from './Navbar';
 import Filter from './Filter';
-import { getAwardedArtists, getAwardStat, getBillboardSongs, getGrammySongs, getArtistById } from '../fetcher'
-import React from 'react';
-import { Form, FormInput, FormGroup, Button, Card, CardBody, CardTitle, Progress } from "shards-react";
+import { getAwardedArtists, getAwardStat, getBillboardSongs, getGrammySongs, getArtistById, getArtistStats, getArtist } from '../fetcher'
+import React, { useState } from "react";
 import './Filter.css';
 import {
     Table,
-    Pagination,
-    Select,
-    Row,
-    Col,
-    Divider,
-    Slider,
-    Rate, 
-    AutoComplete
+    Carousel,
+    Tabs,
+    Card
 } from 'antd'
 import { format } from 'd3-format';
-import { Carousel } from 'antd';
+import { useEffect } from 'react';
+
+const { TabPane } = Tabs;
 
 function onChange(a, b, c) {
   console.log(a, b, c);
 }
+
+// const handleRowSelection = (record) => {
+//     console.log(record)
+// };
 
 const contentStyle = {
   height: '460px',
@@ -35,113 +35,213 @@ const contentStyle = {
 };
 const artistColumns = [
     {
-      title: 'id',
-      dataIndex: 'artist_id',
-      key: 'artist_id',
-      render: (text, row) => <a href={`/ranking?artist_id=${row.artist_id}`}>{text}</a>
-    },
-    {
       title: 'Artist Name',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'artist',
+      key: 'artist',
       sorter : (a, b) => a.name.localeCompare(b.name)
     },
     {
-      title: 'Followers',
-      dataIndex: 'followers',
-      key: 'followers'
+      title: 'Total Number of Songs',
+      dataIndex: 'num_songs',
+      key: 'num_songs'
     },
     {
-      title: 'Popularity',
-      dataIndex: 'popularity',
-      key: 'popularity'
+      title: 'Number of Billboard Songs',
+      dataIndex: 'num_songs_billboard',
+      key: 'num_songs_billboard'
+    },
+    {
+      title: 'Number of Spotify Ranked Songs',
+      dataIndex: 'num_songs_spotify',
+      key: 'num_songs_spotify'
+    },
+    {
+      title: 'Number of Grammy Songs',
+      dataIndex: 'num_songs_grammy',
+      key: 'num_songs_grammy'
     }
   ]
-class RankingPage extends React.Component{
-    constructor(props) {
-        super(props)
-        this.state = {
-            artistsResults : [],
-            billboardSongs : [],
-            grammySongs : [],
-            selectedArtistId: window.location.search ? window.location.search.substring(1).split('=')[1] : "0du5cEVh5yTK9QJze8zA0C",
-            awardStat : null,
-            artistInfo : null
-        }
-    }
-    
-    componentDidMount() {
+
+
+  export default function RankingPage() {
+
+    const [artistsResults, setArtistsResults] = useState([]);
+    const [artistsStats, setArtistsStats] = useState([]);
+    const [billboardSongs, setBillboardSongs] = useState([]);
+    const [grammySongs, setGrammySongs] = useState([]);
+    const [selectedArtistId, setSelectedArtistId] = useState("0du5cEVh5yTK9QJze8zA0C");
+    const [awardStat, setAwardStat] = useState({});
+    const [artistInfo, setArtistInfo] = useState({});
+    const [activeTab, setActiveTab] = useState('tab1');
+
+    const handleRowSelection = (record) => {
+        console.log(record)
+
+        getAwardStat(record.artist_id).then(res => {
+            console.log(res.results)
+            setAwardStat(res.results[0])
+        })
+        getBillboardSongs(record.artist_id).then(res => {
+            console.log(res.results)
+            setBillboardSongs(res.results)
+        })
+        getGrammySongs(record.artist_id).then(res => {
+            console.log(res.results)
+            setGrammySongs(res.results)
+        })
+        getArtist(record.artist_id).then(res => {
+            console.log(res.results)
+            setArtistInfo(res.results[0])
+        })
+    };
+
+    const onTabChange = key => {
+        setActiveTab(key);
+    };
+
+    useEffect( () => {
         getAwardedArtists().then(res => {
             console.log(res.results)
-            this.setState({ artistsResults: res.results })
+            setArtistsResults(res.results)
         })
-        getAwardStat(this.state.selectedArtistId).then(res => {
+        getArtistStats().then(res=>{
             console.log(res.results)
-            this.setState({ awardStat: res.results[0] })
+            setArtistsStats(res.results)
         })
-        getBillboardSongs(this.state.selectedArtistId).then(res => {
-            console.log(res.results)
-            this.setState({ billboardSongs: res.results })
-        })
-        getGrammySongs(this.state.selectedArtistId).then(res => {
-            console.log(res.results)
-            this.setState({ grammySongs: res.results })
-        })
-        getArtistById(this.state.selectedArtistId).then(res => {
-            console.log(res.results)
-            this.setState({ artistInfo: res.results[0] })
-        })
-    }
 
-    render() {
-        return (
-            <div>
-                <div><Navigationbar/></div>
-                <Table id="filter-container" style={{width: '70vw', margin: '20px auto'}}dataSource={this.state.artistsResults} columns={artistColumns} pagination={{ pageSizeOptions:[5, 10], defaultPageSize: 5, showQuickJumper:true }}/>
-                <div>
-                    <Carousel afterChange={onChange}>
-                        <div>
-                            <h1 style={contentStyle}> Number of Awarded Songs of {this.state.artistInfo ? this.state.artistInfo.name : ""}
-                                <h3 style={{color : '#fff'}}> Grammy Award :  {this.state.awardStat ? this.state.awardStat.num_songs_grammy : 0}</h3>
-                                <h3 style={{color : '#fff'}}> Billboard :  {this.state.awardStat ? this.state.awardStat.num_songs_billboard : 0}</h3>
-                                <h3 style={{color : '#fff'}}> Spotify : {this.state.awardStat ? this.state.awardStat.num_songs_spotify: 0}</h3>
-                            </h1>
-                        </div>
-                        <div>
-                        <h1 style={contentStyle}> Songs on Billboard 
-                            {this.state.billboardSongs.length > 0 ? <h6>   
+        getAwardStat(selectedArtistId).then(res => {
+            console.log(res.results)
+            setAwardStat(res.results[0])
+        })
+        getBillboardSongs(selectedArtistId).then(res => {
+            console.log(res.results)
+            setBillboardSongs(res.results)
+        })
+        getGrammySongs(selectedArtistId).then(res => {
+            console.log(res.results)
+            setGrammySongs(res.results)
+        })
+        getArtistById(selectedArtistId).then(res => {
+            console.log(res.results)
+            setArtistInfo(res.results[0])
+        })
+    }, [])
 
-                                    <h5 style={{color : '#fff'}}> Name : {this.state.billboardSongs[0].title}</h5>
-                                    <h5 style={{color : '#fff'}}> Most Recent Time on Board : {this.state.billboardSongs[0].latestweek}</h5>
-                                    <h5 style={{color : '#fff'}}> Times on Board : {this.state.billboardSongs[0].num} </h5>
-                                </h6> : null}
-                            {this.state.billboardSongs.length > 1 ? <h6>
-                                <h5 style={{color : '#fff'}}> Name : {this.state.billboardSongs[1].title}</h5>
-                                <h5 style={{color : '#fff'}}> Most Recent Time on Board : {this.state.billboardSongs[1].latestweek}</h5>
-                                <h5 style={{color : '#fff'}}> Times on Board : {this.state.billboardSongs[1].num} </h5>
+    const tabList = [
+        {
+          key: 'tab1',
+          tab: 'tab1',
+        },
+        {
+          key: 'tab2',
+          tab: 'tab2',
+        },
+      ];
+      
+      const contentList = {
+        tab1: <div>
+            <p> Grammy Award :  {awardStat ? awardStat.num_songs_grammy : 0}</p>
+            <p> Billboard :  {awardStat ? awardStat.num_songs_billboard : 0}</p>
+            <p> Spotify : {awardStat ? awardStat.num_songs_spotify: 0}</p>
+            </div>,
+        
+        tab2: <p>content2</p>,
                             
+      };
+    
+
+    return (
+        <div>
+            <div><Navigationbar/></div>
+            <Table id="filter-container" 
+                style={{width: '70vw', margin: '20px auto'}} 
+                dataSource={artistsStats} 
+                columns={artistColumns} 
+                pagination={{ pageSizeOptions:[5, 10], defaultPageSize: 5, showQuickJumper:true }} 
+                onRow={(record, rowIndex) => {
+            return {
+              onClick: (event) => {
+                        handleRowSelection(record);
+                    }, // click row
+                    };
+                }}
+          />
+            <div style={{width:"90%", margin:"auto"}}>
+                
+                <Card
+                    style={{ width: '80%' }}
+                    hoverable
+                    // cover={<img alt="example" src={artistInfo ? artistInfo.image_url : ""} />}
+                    title="Card title"
+                    // extra={<a href="#">More</a>}
+                    tabList={tabList}
+                    activeTabKey={activeTab}
+                    onTabChange={key => {
+                        onTabChange(key);
+                    }}
+                >
+                    {contentList[activeTab]}
+                </Card>
+
+                {/* <Tabs defaultActiveKey="1" centered >
+                    <TabPane tab="Tab 1" key="1">
+                        <Card title="Card title" bordered={false} style={{ width: 300, margin: "auto", text-align:"center" }}>
+                            <p>Card content</p>
+                            <p>Card content</p>
+                            <p>Card content</p>
+                        </Card>
+                    </TabPane>
+                    <TabPane tab="Tab 2" key="2">
+                    Content of Tab Pane 2
+                    </TabPane>
+                    <TabPane tab="Tab 3" key="3">
+                    Content of Tab Pane 3
+                    </TabPane>
+                </Tabs> */}
+
+
+                {/* <Carousel afterChange={onChange}>
+                    <div>
+                        <h1 style={contentStyle}> {artistInfo ? artistInfo.name : ""}
+                            <h3 style={{color : '#fff'}}> Grammy Award :  {awardStat ? awardStat.num_songs_grammy : 0}</h3>
+                            <h3 style={{color : '#fff'}}> Billboard :  {awardStat ? awardStat.num_songs_billboard : 0}</h3>
+                            <h3 style={{color : '#fff'}}> Spotify : {awardStat ? awardStat.num_songs_spotify: 0}</h3>
+                        </h1>
+                    </div>
+                    <div>
+                    <h1 style={contentStyle}> Songs on Billboard 
+                        {billboardSongs.length > 0 ? <h6>   
+
+                                <h5 style={{color : '#fff'}}> Name : {billboardSongs[0].title}</h5>
+                                <h5 style={{color : '#fff'}}> Most Recent Time on Board : {billboardSongs[0].latestweek}</h5>
+                                <h5 style={{color : '#fff'}}> Times on Board : {billboardSongs[0].num} </h5>
+                            </h6> : null}
+                        {billboardSongs.length > 1 ? <h6>
+                            <h5 style={{color : '#fff'}}> Name : {billboardSongs[1].title}</h5>
+                            <h5 style={{color : '#fff'}}> Most Recent Time on Board : {billboardSongs[1].latestweek}</h5>
+                            <h5 style={{color : '#fff'}}> Times on Board : {billboardSongs[1].num} </h5>
+                        
+                        </h6> : null}
+                    </h1>
+                    
+                    </div>
+                    <div>
+                        <h1 style={contentStyle}>Grammy Award Songs
+                        {grammySongs.length > 0 ? <h6>   
+                            <h5 style={{color : '#fff'}}> Name : {grammySongs[0].title}</h5>
+                            <h5 style={{color : '#fff'}}> Award : {grammySongs[0].award}</h5>
+                            <h5 style={{color : '#fff'}}> Award Year : {grammySongs[0].year} </h5>
                             </h6> : null}
                         </h1>
-                        
-                        </div>
-                        <div>
-                            <h1 style={contentStyle}>Grammy Award Songs
-                            {this.state.grammySongs.length > 0 ? <h6>   
-                                <h5 style={{color : '#fff'}}> Name : {this.state.grammySongs[0].title}</h5>
-                                <h5 style={{color : '#fff'}}> Award : {this.state.grammySongs[0].award}</h5>
-                                <h5 style={{color : '#fff'}}> Award Year : {this.state.grammySongs[0].year} </h5>
-                                </h6> : null}
-                            </h1>
-                        </div>
-                        <div>
-                            <h3 style={contentStyle}>4</h3>
-                        </div>
-                    </Carousel>
-                </div>
-                
+                    </div>
+                    <div>
+                        <h3 style={contentStyle}>4</h3>
+                    </div>
+                </Carousel> */}
             </div>
             
-        );
-    }
+        </div>
+        
+    );
+
 }
-export default RankingPage

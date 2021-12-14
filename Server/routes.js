@@ -420,6 +420,8 @@ function get_awardstats_by_artist(req, res) {
   const pagesize = req.query.pagesize ? req.query.pagesize : 10;
   const page = req.query.page ? req.query.page : 1;
   const offset = (page - 1) * pagesize;
+  
+  console.log(`hello: page: ${page}, pagesize: ${pagesize}, offset: ${offset}`)
 
   if (req.query.artist_id) {
 
