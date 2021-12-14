@@ -125,7 +125,7 @@ function search_songs(req, res) {
   // get page number; defualt 1
   const page = req.query.page ? req.query.page : 1;
   // get name prameter; default empty string
-  const name = req.query.name ? req.query.name : "";
+  const name = req.query.name ? req.query.name : "a";
   // get song prameters; defaults 0 and 1 for low and high respectively
   const danceHigh = req.query.danceHigh ? req.query.danceHigh : 100;
   const danceLow = req.query.danceLow ? req.query.danceLow : 0;
@@ -142,7 +142,7 @@ function search_songs(req, res) {
     // query
     `SELECT s.song_id, s.title, s.album
         FROM Song s
-        WHERE       s.title LIKE '%${name}%'
+        WHERE       s.title LIKE '${name}%'
                 AND s.danceability >= ${danceLow}
                 AND s.danceability <= ${danceHigh}
                 AND s.energy >= ${energyLow}
