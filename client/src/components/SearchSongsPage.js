@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navigationbar from "./Navbar";
 import Filter from "./FilterTwo";
-import { getSong, getSongSearch } from "../fetcher";
-import { Table, Card, Avatar } from "antd";
+import { getArtist, getSong, getSongSearch } from "../fetcher";
+import { Table, Card, Avatar, Tooltip } from "antd";
 
 import "../App.css";
 import { useNavigate } from "react-router";
@@ -13,7 +13,10 @@ export default function SearchSongsPage() {
   const [loading, setLoader] = useState(false);
   const [values, setValues] = useState({});
   const [display, setDisplay] = useState(false);
+  const [artistsList, setArtist] = useState([]);
+  const [query, setQuery] = useState({});
   const handleFormSubmission = (values) => {
+    setQuery(values);
     setLoader(true);
     getSongSearch(values).then((res) => {
       setSongs(res.results);
@@ -31,19 +34,17 @@ export default function SearchSongsPage() {
       dataIndex: "album",
     },
   ];
-  const getSongArtistsInfo = (artistIds) => {
-    if (artistIds) {
-      const ids = artistIds.split(",");
-      console.log(ids);
-    }
-  };
+
   const handleRowSelection = (record) => {
     getSong(record.song_id).then((res) => {
       setValues(res.results[0]);
-
-      if (!display) {
-        setDisplay(true);
-      }
+      getArtist(res.results[0].artist_ids).then((res) => {
+        console.log(res.results[0]);
+        if (!display) {
+          setDisplay(true);
+          setArtist([res.results[0], ...artistsList]);
+        }
+      });
     });
   };
 
@@ -57,6 +58,16 @@ export default function SearchSongsPage() {
       {props.symbol}
     </span>
   );
+  const getMore = (page, pageSize) => {
+    if (page * pageSize == songs.length) {
+      const newQuery = { ...query };
+      newQuery["page"] = page + 1;
+      newQuery["pagesize"] = pageSize;
+      getSongSearch(newQuery).then((res) => {
+        setSongs([...songs, res.results]);
+      });
+    }
+  };
   return (
     <div>
       <Navigationbar />
@@ -81,6 +92,7 @@ export default function SearchSongsPage() {
         >
           <div>
             <Table
+              // onChange={getMore}
               loading={loading}
               columns={columns}
               dataSource={songs}
@@ -93,10 +105,11 @@ export default function SearchSongsPage() {
               }}
               bordered
               pagination={{
-                pageSizeOptions: [5, 10],
-                defaultPageSize: 5,
-                showQuickJumper: true,
+                onChange: getMore,
+                defaultPageSize: 10,
+                pageSizeOptions: [5, 10, 50],
               }}
+              scroll={{ y: 240 }}
             />
           </div>
           <div>
@@ -105,7 +118,7 @@ export default function SearchSongsPage() {
                 hoverable
                 size="small"
                 title={values.title}
-                style={{ width: 500, margin: "auto" }}
+                style={{ width: 700, margin: "auto" }}
               >
                 <div style={{}}>
                   <p>
@@ -115,14 +128,41 @@ export default function SearchSongsPage() {
                   </p>
                   <div style={{ margin: "5px 0px 5px 0px" }}>
                     <span style={{ fontWeight: "bold" }}>Artists</span>
-                    <div>
-                      <Avatar
-                        size={64}
-                        src={
-                          "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fyt3.ggpht.com%2F-FvBjR0DHn0c%2FAAAAAAAAAAI%2FAAAAAAAAAAA%2F1X7Fl-w2PUw%2Fs900-c-k-no-mo-rj-c0xffffff%2Fphoto.jpg&f=1&nofb=1"
-                        }
-                      />
-                      <div>{values.artists}</div>
+
+                    <div style={{ display: "flex", gap: "5px" }}>
+                      {artistsList.length > 0 ? (
+                        artistsList.map((item) => (
+                          <div id={"button"} style={{ textAlign: "center" }}>
+                            <Tooltip title={`${item.name}`} placement="top">
+                              <Avatar
+                                style={{ margin: "auto" }}
+                                size={64}
+                                src={item.image_url}
+                              />
+                              <div style={{}}>{item.name}</div>
+                            </Tooltip>
+                          </div>
+                        ))
+                      ) : (
+                        <div>hello</div>
+                      )}
+                      {values.song_id ? (
+                        <div style={{ paddingLeft: "50px" }}>
+                          <iframe
+                            src={
+                              "https://open.spotify.com/embed/track/" +
+                              values.song_id
+                            }
+                            width="300"
+                            height="100"
+                            frameborder="0"
+                            allowtransparency="true"
+                            allow="encrypted-media"
+                          />
+                        </div>
+                      ) : (
+                        <div></div>
+                      )}
                     </div>
                   </div>
 

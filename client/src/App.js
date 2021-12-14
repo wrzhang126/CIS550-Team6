@@ -1,6 +1,5 @@
 import React from "react";
 import SearchByArtistPage from "./components/SearchByArtistPage";
-import SearchBySongPage from "./components/SearchBySongPage";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import ArtistProfile from "./components/ArtistProfilePage";
 import RankingPage from "./components/RankingPage";
