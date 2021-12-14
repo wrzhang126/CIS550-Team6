@@ -42,27 +42,31 @@ const artistColumns = [
     title: "Artist Name",
     dataIndex: "artist",
     key: "artist",
-    sorter: (a, b) => a.name.localeCompare(b.name),
+    sorter: (a, b) => a.artist.localeCompare(b.artist),
   },
   {
     title: "Total Number of Songs",
     dataIndex: "num_songs",
     key: "num_songs",
+    sorter: (a, b) => a.num_songs - b.num_songs
   },
   {
     title: "Number of Billboard Songs",
     dataIndex: "num_songs_billboard",
     key: "num_songs_billboard",
+    sorter: (a, b) => a.num_songs_billboard - b.num_songs_billboard
   },
   {
     title: "Number of Spotify Ranked Songs",
     dataIndex: "num_songs_spotify",
     key: "num_songs_spotify",
+    sorter: (a, b) => a.num_songs_spotify - b.num_songs_spotify
   },
   {
     title: "Number of Grammy Songs",
     dataIndex: "num_songs_grammy",
     key: "num_songs_grammy",
+    sorter: (a, b) => a.num_songs_grammy - b.num_songs_grammy
   },
 ];
 
@@ -286,8 +290,8 @@ export default function RankingPage() {
                         >
                             Track Title : {song.title}
                         </a>
-                        <div> Most Recent Time on Board : {parseDateString(song.latestweek)}</div>
-                        <div> Times on Board : {song.num} </div>
+                        <div> Award : {song.award}</div>
+                        <div> Year Received : {song.year} </div>
                     </div>
                     <iframe
                         src={"https://open.spotify.com/embed/track/" + song.song_id}
