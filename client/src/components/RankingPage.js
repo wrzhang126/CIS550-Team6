@@ -12,7 +12,7 @@ import {
 } from "../fetcher";
 import React, { useState } from "react";
 import "./Filter.css";
-import { Table, Carousel, Tabs, Card, List } from "antd";
+import { Table, Carousel, Tabs, Card, List, Row, Col, } from "antd";
 import { format } from "d3-format";
 import { useEffect } from "react";
 
@@ -65,6 +65,10 @@ const artistColumns = [
     key: "num_songs_grammy",
   },
 ];
+
+const parseDateString = (dateString) => {
+    return dateString.substring(0,dateString.indexOf("T"))
+}
 
 export default function RankingPage() {
   const [artistsResults, setArtistsResults] = useState([]);
@@ -143,60 +147,38 @@ export default function RankingPage() {
     // });
   }, []);
 
+  const Emoji = (props) => (
+    <span
+      className="emoji"
+      role="img"
+      aria-label={props.label ? props.label : ""}
+      aria-hidden={props.label ? "false" : "true"}
+    >
+      {props.symbol}
+    </span>
+  );
+
   const tabList = [
     {
       key: "tab1",
-      tab: "Overview",
-    },
-    {
-      key: "tab2",
       tab: "Spotify Ranked Songs",
     },
     {
-      key: "tab3",
+      key: "tab2",
       tab: "Billboard Ranked Songs",
     },
     {
-      key: "tab4",
+      key: "tab3",
       tab: "Grammy Awards",
     },
   ];
 
   const contentList = {
     tab1: (
-      <div>
-        <p>
-          {" "}
-          Number of Spotify Ranked Songs:{" "}
-          {awardStat ? awardStat.num_songs_spotify : ""}
-        </p>
-        <p>
-          {" "}
-          Number of Billboard Ranked Songs :{" "}
-          {awardStat ? awardStat.num_songs_billboard : ""}
-        </p>
-        <p>
-          {" "}
-          Number of Grammy Awards :{" "}
-          {awardStat ? awardStat.num_songs_grammy : ""}
-        </p>
-      </div>
-    ),
-    tab2: (
-      // <div>
-      //     {spotifySongs.length > 0 ?
-      //         spotifySongs.map((song) => {
-      //             return(
-      //                 <div >
-      //                     <p> Name : {song.title}</p>
-      //                     <p> Most Recent Time on Board : {song.latestweek}</p>
-      //                     <p> Times on Board : {song.num} </p>
-      //                 </div>
-      //             )
-      //         })
-      //     : null}
-      // </div>
-      <div style={{ height: "200px", overflow: "scroll" }}>
+        <div>
+        {spotifySongs.length > 0
+          ?  
+      <div style={{ height: "300px", overflow: "scroll" }}>
         <List
           size="small"
           header={<div>Songs</div>}
@@ -206,58 +188,125 @@ export default function RankingPage() {
           dataSource={spotifySongs}
           renderItem={(song) => (
             <List.Item>
-              <div>
-                <p> Name : {song.title}</p>
-                <p> Most Recent Time on Board : {song.latestweek}</p>
-                <p> Times on Board : {song.num} </p>
-              </div>
-            </List.Item>
-          )}
-        />
-      </div>
-    ),
-    tab3: (
-      <div>
-        {billboardSongs.length > 0
-          ? billboardSongs.map((song) => {
-              return (
-                <div>
-                  <a
-                    href={"https://open.spotify.com/track/" + song.song_id}
-                    target="_blank"
-                  >
-                    {" "}
-                    Track Title : {song.title}
-                  </a>
-                  <p> Most Recent Time on Board : {song.latestweek}</p>
-                  <p> Times on Board : {song.num} </p>
+              <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
+                  <div>
+                    <a
+                        href={"https://open.spotify.com/track/" + song.song_id}
+                        target="_blank"
+                    >
+                        Track Title : {song.title}
+                    </a>
+                    <div> Most Recent Time on Board : {parseDateString(song.latestweek)}</div>
+                    <div> Times on Board : {song.num} </div>
+                  </div>
                   <iframe
                     src={"https://open.spotify.com/embed/track/" + song.song_id}
                     width="300"
-                    height="380"
+                    height="100"
                     frameborder="0"
                     allowtransparency="true"
                     allow="encrypted-media"
                   ></iframe>
                 </div>
-              );
-            })
-          : null}
+            </List.Item>
+          )}
+        />
+      </div>
+      : 
+      <div>
+        <div> No Spotify Hits for {artistInfo ? artistInfo.name : ""} <Emoji symbol="🙁" /> </div> 
+      </div>
+      }
+  </div>
+    ),
+    tab2: (
+      <div>
+        {billboardSongs.length > 0
+          ?       
+          <div style={{ height: "300px", overflow: "scroll" }}>
+          <List
+            size="small"
+            header={<div>Songs</div>}
+            // footer={<div>Footer</div>}
+            pagination
+            bordered
+            dataSource={billboardSongs}
+            renderItem={(song) => (
+              <List.Item>
+                <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
+                    <div>
+                      <a
+                          href={"https://open.spotify.com/track/" + song.song_id}
+                          target="_blank"
+                      >
+                          Track Title : {song.title}
+                      </a>
+                      <div> Most Recent Time on Board : {parseDateString(song.latestweek)}</div>
+                      <div> Times on Board : {song.num} </div>
+                    </div>
+                    <iframe
+                      src={"https://open.spotify.com/embed/track/" + song.song_id}
+                      width="300"
+                      height="100"
+                      frameborder="0"
+                      allowtransparency="true"
+                      allow="encrypted-media"
+                    ></iframe>
+                  </div>
+              </List.Item>
+            )}
+          />
+          </div>
+          : 
+          <div>
+            <div> No Billboard Hits for {artistInfo ? artistInfo.name : ""} <Emoji symbol="🙁" /> </div> 
+          </div>
+          }
       </div>
     ),
-    tab4: (
-      <div>
+    tab3: (
+        <div>
         {grammySongs.length > 0
-          ? grammySongs.map((song) => {
-              return (
-                <div>
-                  <p> Song Name : {song.title}</p>
-                  <p> Award : {song.award}</p>
-                  <p> Year Received : {song.year} </p>
-                </div>
-              );
-            })
-          : null}
+          ? 
+            <div style={{ height: "300px", overflow: "scroll" }}>
+            <List
+            size="small"
+            header={<div>Songs</div>}
+            // footer={<div>Footer</div>}
+            pagination
+            bordered
+            dataSource={grammySongs}
+            renderItem={(song) => (
+                <List.Item>
+                <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
+                    <div>
+                        <a
+                            href={"https://open.spotify.com/track/" + song.song_id}
+                            target="_blank"
+                        >
+                            Track Title : {song.title}
+                        </a>
+                        <div> Most Recent Time on Board : {parseDateString(song.latestweek)}</div>
+                        <div> Times on Board : {song.num} </div>
+                    </div>
+                    <iframe
+                        src={"https://open.spotify.com/embed/track/" + song.song_id}
+                        width="300"
+                        height="100"
+                        frameborder="0"
+                        allowtransparency="true"
+                        allow="encrypted-media"
+                    ></iframe>
+                    </div>
+                </List.Item>
+            )}
+            />
+        </div>
+          : 
+          <div>
+            <div> No Grammies for {artistInfo ? artistInfo.name : ""} <Emoji symbol="🙁" /> </div> 
+          </div>
+          }
       </div>
     ),
   };
@@ -305,68 +354,16 @@ export default function RankingPage() {
           >
             <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
               <img
-                style={{ width: "200px", height: "200px", objectFit: "cover" }}
+                style={{ width: "300px", height: "300px", objectFit: "cover" }}
                 alt="example"
                 src={artistInfo ? artistInfo.image_url : ""}
               />
-              <div>{contentList[activeTab]}</div>
+              <div style={{ width: "100%", margin: "auto" }}>
+                  {contentList[activeTab]}
+              </div>
             </div>
           </Card>
-
-          {/* <Tabs defaultActiveKey="1" centered >
-                    <TabPane tab="Tab 1" key="1">
-                        <Card title="Card title" bordered={false} style={{ width: 300, margin: "auto", text-align:"center" }}>
-                            <p>Card content</p>
-                            <p>Card content</p>
-                            <p>Card content</p>
-                        </Card>
-                    </TabPane>
-                    <TabPane tab="Tab 2" key="2">
-                    Content of Tab Pane 2
-                    </TabPane>
-                    <TabPane tab="Tab 3" key="3">
-                    Content of Tab Pane 3
-                    </TabPane>
-                </Tabs> */}
-
-          {/* <Carousel afterChange={onChange}>
-                    <div>
-                        <h1 style={contentStyle}> {artistInfo ? artistInfo.name : ""}
-                            <h3 style={{color : '#fff'}}> Grammy Award :  {awardStat ? awardStat.num_songs_grammy : 0}</h3>
-                            <h3 style={{color : '#fff'}}> Billboard :  {awardStat ? awardStat.num_songs_billboard : 0}</h3>
-                            <h3 style={{color : '#fff'}}> Spotify : {awardStat ? awardStat.num_songs_spotify: 0}</h3>
-                        </h1>
-                    </div>
-                    <div>
-                    <h1 style={contentStyle}> Songs on Billboard 
-                        {billboardSongs.length > 0 ? <h6>   
-
-                                <h5 style={{color : '#fff'}}> Name : {billboardSongs[0].title}</h5>
-                                <h5 style={{color : '#fff'}}> Most Recent Time on Board : {billboardSongs[0].latestweek}</h5>
-                                <h5 style={{color : '#fff'}}> Times on Board : {billboardSongs[0].num} </h5>
-                            </h6> : null}
-                        {billboardSongs.length > 1 ? <h6>
-                            <h5 style={{color : '#fff'}}> Name : {billboardSongs[1].title}</h5>
-                            <h5 style={{color : '#fff'}}> Most Recent Time on Board : {billboardSongs[1].latestweek}</h5>
-                            <h5 style={{color : '#fff'}}> Times on Board : {billboardSongs[1].num} </h5>
-                        
-                        </h6> : null}
-                    </h1>
-                    
-                    </div>
-                    <div>
-                        <h1 style={contentStyle}>Grammy Award Songs
-                        {grammySongs.length > 0 ? <h6>   
-                            <h5 style={{color : '#fff'}}> Name : {grammySongs[0].title}</h5>
-                            <h5 style={{color : '#fff'}}> Award : {grammySongs[0].award}</h5>
-                            <h5 style={{color : '#fff'}}> Award Year : {grammySongs[0].year} </h5>
-                            </h6> : null}
-                        </h1>
-                    </div>
-                    <div>
-                        <h3 style={contentStyle}>4</h3>
-                    </div>
-                </Carousel> */}
+          
         </div>
       )}
     </div>
