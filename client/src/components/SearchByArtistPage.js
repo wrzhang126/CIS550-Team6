@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import Navigationbar from "./Navbar";
 import Filter from "./Filter";
-import Body from "./Body";
 import { searchArtists } from "../fetcher";
 import { Table } from "antd";
-
 import "../App.css";
 import { useNavigate } from "react-router";
 
