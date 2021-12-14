@@ -135,6 +135,15 @@ const getArtistById = async (artist_id) => {
   );
   return res.json();
 };
+const getArtistStats = async (page, pagesize) => {
+  var res = await fetch(
+    `http://${config.server_host}:${config.server_port}/awards?page=${page?page:""}&pagesize=${pagesize?pagesize:""}`,
+    {
+      method: "GET",
+    }
+  );
+  return res.json();
+};
 export {
   getAllSongs,
   getSong,
@@ -147,4 +156,5 @@ export {
   getSongsByArtist,
   getArtist,
   searchArtists,
+  getArtistStats,
 };
