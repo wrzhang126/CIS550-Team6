@@ -482,6 +482,7 @@ function get_awardstats_by_artist(req, res) {
             ) df3
             JOIN Artist ON Artist.artist_id = df3.artist_id
         GROUP BY (df3.artist_id)
+        HAVING SUM(spotifyTag) > 0 OR SUM(billboardTag) > 0 OR SUM(grammyTag) > 0
         ORDER BY num_songs_spotify DESC
         LIMIT ${offset}, ${pagesize}`,
       // callback

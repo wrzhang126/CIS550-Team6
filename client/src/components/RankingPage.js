@@ -182,7 +182,7 @@ export default function RankingPage() {
                   <div
                     style={{
                       display: "flex",
-                      flexDirection: "row",
+                      flexDirection: "column",
                       gap: "10px",
                     }}
                   >
@@ -242,7 +242,7 @@ export default function RankingPage() {
                   <div
                     style={{
                       display: "flex",
-                      flexDirection: "row",
+                      flexDirection: "column",
                       gap: "10px",
                     }}
                   >
@@ -302,7 +302,7 @@ export default function RankingPage() {
                   <div
                     style={{
                       display: "flex",
-                      flexDirection: "row",
+                      flexDirection: "column",
                       gap: "10px",
                     }}
                   >

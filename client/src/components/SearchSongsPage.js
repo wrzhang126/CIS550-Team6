@@ -24,7 +24,7 @@ export default function SearchSongsPage() {
     });
   };
 
-  const columns = [
+  const columnsSongsTable = [
     {
       title: "Title",
       dataIndex: "title",
@@ -32,6 +32,16 @@ export default function SearchSongsPage() {
     {
       title: "Album",
       dataIndex: "album",
+    },
+  ];
+  const columnsGenresTable = [
+    {
+      title: "Genre",
+      dataIndex: "genre",
+    },
+    {
+      title: "Song count",
+      dataIndex: "num_songs",
     },
   ];
 
@@ -90,11 +100,12 @@ export default function SearchSongsPage() {
             padding: "10px 0px 0px 10px",
           }}
         >
-          <div>
+          <div style={{ display: "flex" }}>
+            <div></div>
             <Table
               // onChange={getMore}
               loading={loading}
-              columns={columns}
+              columns={columnsSongsTable}
               dataSource={songs}
               onRow={(record, rowIndex) => {
                 return {
@@ -106,11 +117,31 @@ export default function SearchSongsPage() {
               bordered
               pagination={{
                 onChange: getMore,
-                defaultPageSize: 10,
+                defaultPageSize: 5,
                 pageSizeOptions: [5, 10, 50],
               }}
-              scroll={{ y: 500 }}
+              scroll={{ y: 300 }}
             />
+            {/* <Table
+              // onChange={getMore}
+              loading={loading}
+              columns={columnsGenresTable}
+              // dataSource={songs}
+              // onRow={(record, rowIndex) => {
+              //   return {
+              //     onClick: (event) => {
+              //       handleRowSelection(record);
+              //     }, // click row
+              //   };
+              // }}
+              bordered
+              pagination={{
+                // onChange: getMore,
+                defaultPageSize: 5,
+                pageSizeOptions: [5, 10, 50],
+              }}
+              scroll={{ y: 200 }}
+            /> */}
           </div>
           <div>
             {display ? (

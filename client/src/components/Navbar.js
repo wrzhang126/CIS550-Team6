@@ -11,10 +11,20 @@ import { useNavigate } from "react-router-dom";
 
 export default function Navigationbar() {
   const navigate = useNavigate();
+
   return (
     <div>
-      <Navbar bg="light" expand="lg">
+      <Navbar bg="dark" expand="lg">
         <Container fluid>
+          <Navbar.Brand href="/">
+            {" "}
+            <img
+              width="30px"
+              height="30px"
+              style={{ borderRadius: "15px" }}
+              src="logo-whitebg.svg"
+            />
+          </Navbar.Brand>
           <Navbar.Toggle aria-controls="navbarScroll" />
           <Navbar.Collapse id="navbarScroll">
             <Nav

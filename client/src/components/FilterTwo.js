@@ -19,10 +19,10 @@ function Filter({ handleFormSubmission }) {
             justifyContent: "space-between",
           }}
         >
-          <Form.Item name="startYear" label="Start year">
+          <Form.Item name="startYear" label="Release start year">
             <DatePicker picker="year" />
           </Form.Item>
-          <Form.Item name="endYear" label="End year">
+          <Form.Item name="endYear" label="Release end year">
             <DatePicker picker="year" />
           </Form.Item>
         </div>
