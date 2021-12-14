@@ -16,7 +16,10 @@ export default function ArtistProfile() {
   const artistId = window.location.pathname.split("/")[2];
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
-
+  const [likes, setLikes] = useState(0);
+  const handleIncrement = () => {
+    setLikes(likes + 1);
+  };
   useEffect(() => {
     getArtist(artistId).then((res) => {
       setUrl(res.results[0].image_url);
@@ -161,24 +164,23 @@ export default function ArtistProfile() {
     <div>
       <Navigationbar />
       <div style={{ marginTop: "10px", width: "100%", textAlign: "center" }}>
-        <Image
-          id="test"
-          style={{
-            width: "90%",
-            height: "400px",
-            objectFit: "cover",
-          }}
-          src={url}
-        />
-        <Image
-          style={{
-            width: "200px",
-            height: "200px",
-            objectFit: "cover",
-          }}
-          roundedCircle
-          src={url}
-        />
+        <div>
+          <div style={{ background: "red", position: "relative" }}>
+            <Image
+              id="test"
+              style={{
+                width: "90%",
+                height: "400px",
+                objectFit: "cover",
+                position: "relative",
+                top: "0",
+                left: "0",
+              }}
+              src={url}
+            />
+            <Image id="test2" roundedCircle src={url} />
+          </div>
+        </div>
         <div style={{ height: "50%" }}>
           <div style={{ width: "fit-content", margin: "auto" }}>
             <h1 style={{ color: "#0D6EFD" }}>{name}</h1>
@@ -205,6 +207,7 @@ export default function ArtistProfile() {
             </div>
           </div>
         </div>
+
         <Table columns={columns} dataSource={songs} />
       </div>
     </div>

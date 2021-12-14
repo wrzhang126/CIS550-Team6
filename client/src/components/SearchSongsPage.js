@@ -1,29 +1,33 @@
 import React, { useState } from "react";
 import Navigationbar from "./Navbar";
-import Filter from "./Filter";
-import { searchArtists } from "../fetcher";
+import Filter from "./FilterTwo";
+import { getSongSearch } from "../fetcher";
 import { Table } from "antd";
+
 import "../App.css";
 import { useNavigate } from "react-router";
 
-export default function SearchByArtistPage() {
+export default function SearchSongsPage() {
   const navigate = useNavigate();
-  const [artists, setArtists] = useState([]);
+  const [songs, setSongs] = useState([]);
+  const [loading, setLoader] = useState(false);
 
   const handleFormSubmission = (values) => {
-    searchArtists(values).then((res) => {
-      setArtists(res.results);
+    setLoader(true);
+    getSongSearch(values).then((res) => {
+      setSongs(res.results);
+      setLoader(false);
     });
   };
+
   const columns = [
     {
-      title: "Name",
-      dataIndex: "name",
+      title: "Title",
+      dataIndex: "title",
     },
     {
-      title: "Popularity",
-      dataIndex: "popularity",
-      sorter: (a, b) => a.popularity - b.popularity,
+      title: "Album",
+      dataIndex: "album",
     },
   ];
 
@@ -54,8 +58,9 @@ export default function SearchByArtistPage() {
         >
           <div>
             <Table
+              loading={loading}
               columns={columns}
-              dataSource={artists}
+              dataSource={songs}
               onRow={(record, rowIndex) => {
                 return {
                   onClick: (event) => {
