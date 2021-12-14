@@ -165,7 +165,7 @@ export default function ArtistProfile() {
       <Navigationbar />
       <div style={{ marginTop: "10px", width: "100%", textAlign: "center" }}>
         <div>
-          <div style={{ background: "red", position: "relative" }}>
+          <div style={{ position: "relative" }}>
             <Image
               id="test"
               style={{
@@ -207,8 +207,9 @@ export default function ArtistProfile() {
             </div>
           </div>
         </div>
-
-        <Table columns={columns} dataSource={songs} />
+        <div style={{ width: "80%", margin: "auto" }}>
+          <Table columns={columns} dataSource={songs} />
+        </div>
       </div>
     </div>
   );

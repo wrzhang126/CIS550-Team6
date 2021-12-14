@@ -90,7 +90,7 @@ function get_artist_by_id(req, res) {
     // else id was not passed in
   } else {
     // return an empty array
-    res.json({ results: [] });
+    res.status(404).json({ results: [] });
   }
 }
 
@@ -169,9 +169,9 @@ function search_songs(req, res) {
 
 function get_song_by_id(req, res) {
   // if id was passed in
-  if (req.query.id) {
+  if (req.params["id"]) {
     // get id
-    const song_id = req.query.id;
+    const song_id = req.params["id"];
 
     connection.query(
       // query
@@ -193,7 +193,7 @@ function get_song_by_id(req, res) {
     // else id was not passed in
   } else {
     // return an empty array
-    res.json({ results: [] });
+    res.status(404).json({ results: [] });
   }
 }
 
@@ -235,21 +235,21 @@ function awarded_artist(req, res) {
   );
 }
 
-// 
+//
 function search_grammy_songs(req, res) {
-    const pagesize = req.query.pagesize ? req.query.pagesize : 10;
-    const page = req.query.page ? req.query.page : 1;
-    // get name prameter; default empty string
-    const name = req.query.name ? req.query.name : "";
-    // get ranking parameters
-    const award = req.query.award ? req.query.award : "";
-  
-    if (req.query.year && !isNaN(req.query.year)) {
-      const year = req.query.year;
-  
-      connection.query(
-        // query
-        `SELECT df.*, df2.title FROM
+  const pagesize = req.query.pagesize ? req.query.pagesize : 10;
+  const page = req.query.page ? req.query.page : 1;
+  // get name prameter; default empty string
+  const name = req.query.name ? req.query.name : "";
+  // get ranking parameters
+  const award = req.query.award ? req.query.award : "";
+
+  if (req.query.year && !isNaN(req.query.year)) {
+    const year = req.query.year;
+
+    connection.query(
+      // query
+      `SELECT df.*, df2.title FROM
             (SELECT * FROM GrammyAwards
               WHERE year = ${year}
               AND award LIKE '%{award}%')df
@@ -257,22 +257,22 @@ function search_grammy_songs(req, res) {
                 WHERE title LIKE '%${name}%') df2
               ON df.song_id = df2.song_id
              ORDER BY year, award`,
-        // callback
-        function (error, results, fields) {
-          if (error) {
-            console.log(error);
-            res.json({ error: error });
-          } else if (results) {
-            res.json({ results: results });
-          }
+      // callback
+      function (error, results, fields) {
+        if (error) {
+          console.log(error);
+          res.json({ error: error });
+        } else if (results) {
+          res.json({ results: results });
         }
-      );
-    } else {
-      const offset = (page - 1) * pagesize;
-  
-      connection.query(
-        // query
-        `SELECT df.*, df2.title FROM
+      }
+    );
+  } else {
+    const offset = (page - 1) * pagesize;
+
+    connection.query(
+      // query
+      `SELECT df.*, df2.title FROM
             (SELECT * FROM GrammyAwards
               WHERE award LIKE '%{award}%')df
               JOIN (SELECT song_id, title FROM Song
@@ -280,18 +280,18 @@ function search_grammy_songs(req, res) {
               ON df.song_id = df2.song_id
              ORDER BY year, award
             LIMIT ${offset}, ${pagesize}`,
-        // callback
-        function (error, results, fields) {
-          if (error) {
-            console.log(error);
-            res.json({ error: error });
-          } else if (results) {
-            res.json({ results: results });
-          }
+      // callback
+      function (error, results, fields) {
+        if (error) {
+          console.log(error);
+          res.json({ error: error });
+        } else if (results) {
+          res.json({ results: results });
         }
-      );
-    }
+      }
+    );
   }
+}
 
 function search_billboard_ranking(req, res) {
   const pagesize = req.query.pagesize ? req.query.pagesize : 10;
@@ -420,16 +420,15 @@ function get_awardstats_by_artist(req, res) {
   const pagesize = req.query.pagesize ? req.query.pagesize : 10;
   const page = req.query.page ? req.query.page : 1;
   const offset = (page - 1) * pagesize;
-  
-  console.log(`hello: page: ${page}, pagesize: ${pagesize}, offset: ${offset}`)
+
+  console.log(`hello: page: ${page}, pagesize: ${pagesize}, offset: ${offset}`);
 
   if (req.query.artist_id) {
-
     const artist_id = req.query.artist_id;
 
     connection.query(
-        // query
-        `SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs , SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify , SUM(grammyTag) AS num_songs_grammy
+      // query
+      `SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs , SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify , SUM(grammyTag) AS num_songs_grammy
         FROM   (SELECT df2.*, CASE WHEN GA.song_id IS NULL THEN 0 ELSE 1 END AS grammyTag
             FROM   (SELECT df.*, CASE WHEN SP.song_id IS NULL THEN 0 ELSE 1 END AS spotifyTag
                     FROM   (SELECT SA.*, CASE WHEN BR.song_id IS NULL THEN 0 ELSE 1 END AS billboardTag
@@ -449,23 +448,22 @@ function get_awardstats_by_artist(req, res) {
             JOIN Artist ON Artist.artist_id = df3.artist_id
         WHERE df3.artist_id = '${artist_id}'
         GROUP BY (df3.artist_id)`,
-        // callback
-        function (error, results, fields) {
+      // callback
+      function (error, results, fields) {
         if (error) {
-            console.log(error);
-            res.json({ error: error });
+          console.log(error);
+          res.json({ error: error });
         } else if (results) {
-            res.json({ results: results });
+          res.json({ results: results });
         }
-        }
+      }
     );
 
-  // else id was not passed in
+    // else id was not passed in
   } else {
-
     connection.query(
-        // query
-        `SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs , SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify , SUM(grammyTag) AS num_songs_grammy
+      // query
+      `SELECT df3.artist_id, Artist.name AS artist, COUNT(DISTINCT song_id) AS num_songs , SUM(billboardTag) AS num_songs_billboard, SUM(spotifyTag) AS num_songs_spotify , SUM(grammyTag) AS num_songs_grammy
         FROM   (SELECT df2.*, CASE WHEN GA.song_id IS NULL THEN 0 ELSE 1 END AS grammyTag
             FROM   (SELECT df.*, CASE WHEN SP.song_id IS NULL THEN 0 ELSE 1 END AS spotifyTag
                     FROM   (SELECT SA.*, CASE WHEN BR.song_id IS NULL THEN 0 ELSE 1 END AS billboardTag
@@ -486,15 +484,15 @@ function get_awardstats_by_artist(req, res) {
         GROUP BY (df3.artist_id)
         ORDER BY num_songs_spotify DESC
         LIMIT ${offset}, ${pagesize}`,
-        // callback
-        function (error, results, fields) {
+      // callback
+      function (error, results, fields) {
         if (error) {
-            console.log(error);
-            res.json({ error: error });
+          console.log(error);
+          res.json({ error: error });
         } else if (results) {
-            res.json({ results: results });
+          res.json({ results: results });
         }
-        }
+      }
     );
   }
 }
@@ -566,7 +564,7 @@ function get_billboardsongs_by_artistid(req, res) {
   }
 }
 
-// TODO: MOVE THIS QUERY UP TO SONGS SECTION 
+// TODO: MOVE THIS QUERY UP TO SONGS SECTION
 function get_songs_by_artistid(req, res) {
   console.log(req.params["id"]);
   // if id was passed in
@@ -612,7 +610,7 @@ function get_spotifysongs_by_artistid(req, res) {
   // if id was passed in
   if (req.query.id) {
     const artist_id = req.query.id;
-    console.log(artist_id)
+    console.log(artist_id);
 
     connection.query(
       // query
@@ -735,9 +733,8 @@ function get_grammysongs_by_artistid(req, res) {
 
 // ------------------ CQ #1 -------------------
 // --------------------------------------------
-function get_top_spotify_and_billboard_artists(req, res) { 
-
-    connection.query(
+function get_top_spotify_and_billboard_artists(req, res) {
+  connection.query(
     // query
     `SELECT df.artist_id, Artist.name AS artist, SUM(SpotifyTag) AS total_spotify_consec, SUM(billboardTag)  AS total_billboard_consec
     FROM (  SELECT  SA.artist_id ,
@@ -761,22 +758,20 @@ function get_top_spotify_and_billboard_artists(req, res) {
     ORDER BY total_spotify_consec DESC, total_billboard_consec DESC;`,
     // callback
     function (error, results, fields) {
-        if (error) {
+      if (error) {
         console.log(error);
         res.json({ error: error });
-        } else if (results) {
+      } else if (results) {
         res.json({ results: results });
-        }
+      }
     }
-    );
-
-  }
+  );
+}
 
 // ------------------ CQ #2 -------------------
 // --------------------------------------------
-function get_consecutive_spotify_songs(req, res) { 
-
-    connection.query(
+function get_consecutive_spotify_songs(req, res) {
+  connection.query(
     // query
     `SELECT SA.artist_id, Artist.name AS artist, df.*
     FROM    (   SELECT s.song_id, s.title, MAX(r1.week) as last_week , MIN(r2.week) AS first_week, COUNT(*) AS num_consec_weeks
@@ -789,22 +784,20 @@ function get_consecutive_spotify_songs(req, res) {
     ORDER BY artist;`,
     // callback
     function (error, results, fields) {
-        if (error) {
+      if (error) {
         console.log(error);
         res.json({ error: error });
-        } else if (results) {
+      } else if (results) {
         res.json({ results: results });
-        }
+      }
     }
-    );
-
-  }
+  );
+}
 
 // ------------------ CQ #3 -------------------
 // --------------------------------------------
-function get_consecutive_billboard_songs(req, res) { 
-
-    connection.query(
+function get_consecutive_billboard_songs(req, res) {
+  connection.query(
     // query
     `SELECT SA.artist_id, Artist.name AS artist, df.*
     FROM    (   SELECT s.song_id, s.title, MAX(r1.week) as last_week , MIN(r2.week) AS first_week, COUNT(*) AS num_consec_weeks
@@ -817,16 +810,15 @@ function get_consecutive_billboard_songs(req, res) {
     ORDER BY artist;`,
     // callback
     function (error, results, fields) {
-        if (error) {
+      if (error) {
         console.log(error);
         res.json({ error: error });
-        } else if (results) {
+      } else if (results) {
         res.json({ results: results });
-        }
+      }
     }
-    );
-
-  }
+  );
+}
 
 // ===========================================================================
 // EXPORTS

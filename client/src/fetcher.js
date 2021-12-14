@@ -8,9 +8,9 @@ const getAllSongs = async (page, pagesize) => {
   );
   return res.json();
 };
-const getSong = async (id) => {
+const getSong = async (song_id) => {
   var res = await fetch(
-    `http://${config.server_host}:${config.server_port}/song?id=${id}`,
+    `http://${config.server_host}:${config.server_port}/song/${song_id}`,
     {
       method: "GET",
     }
@@ -134,7 +134,9 @@ const getArtistById = async (artist_id) => {
 
 const getArtistStats = async (page, pagesize) => {
   var res = await fetch(
-    `http://${config.server_host}:${config.server_port}/awards?page=${page?page:""}&pagesize=${pagesize?pagesize:""}`,
+    `http://${config.server_host}:${config.server_port}/awards?page=${
+      page ? page : ""
+    }&pagesize=${pagesize ? pagesize : ""}`,
     {
       method: "GET",
     }
@@ -161,6 +163,7 @@ const getBoringTableTwo = async () => {
   );
   return res.json();
 };
+
 export {
   getAllSongs,
   getSong,

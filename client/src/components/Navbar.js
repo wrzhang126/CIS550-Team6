@@ -35,7 +35,9 @@ export default function Navigationbar() {
               </Button>
               <Button
                 type="link"
-                onClick={() => navigate("/songs", { from: "SearchByArtist" })}
+                onClick={() =>
+                  navigate("/search/songs", { from: "SearchByArtist" })
+                }
                 style={{ marginRight: "10px" }}
               >
                 Search by Song

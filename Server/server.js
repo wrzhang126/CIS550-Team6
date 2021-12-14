@@ -28,7 +28,7 @@ app.get("/search/artists", routes.search_artists);
 app.get("/artist/:id", routes.get_artist_by_id);
 app.get("/songs/artist/:id", routes.get_songs_by_artistid);
 app.get("/songs", routes.all_songs);
-app.get("/song", routes.get_song_by_id);
+app.get("/song/:id", routes.get_song_by_id);
 app.get("/search/songs", routes.search_songs);
 app.get("/ranking", routes.awarded_artist);
 app.get("/awards", routes.get_awardstats_by_artist);

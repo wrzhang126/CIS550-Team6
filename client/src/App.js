@@ -13,7 +13,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/search/artists" element={<SearchByArtistPage />} />
-          <Route path="/songs" element={<SearchSongsPage />} />
+          <Route path="/search/songs" element={<SearchSongsPage />} />
           <Route path="/artist/:id" element={<ArtistProfile />} />
           <Route path="/" element={<SearchByArtistPage />} />
           <Route path="/ranking" element={<RankingPage />} />
