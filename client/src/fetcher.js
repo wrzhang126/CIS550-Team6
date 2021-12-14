@@ -164,6 +164,16 @@ const getBoringTableTwo = async () => {
   return res.json();
 };
 
+const getSpotifyRankedSongs = async (artist_id) => {
+  var res = await fetch(
+    `http://${config.server_host}:${config.server_port}/awards/spotify?id=${artist_id}`,
+    {
+      method: "GET",
+    }
+  );
+  return res.json();
+};
+
 export {
   getAllSongs,
   getSong,
@@ -179,4 +189,5 @@ export {
   getArtistStats,
   getBoringTableOne,
   getBoringTableTwo,
+  getSpotifyRankedSongs,
 };

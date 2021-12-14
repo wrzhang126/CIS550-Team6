@@ -125,7 +125,7 @@ function search_songs(req, res) {
   // get page number; defualt 1
   const page = req.query.page ? req.query.page : 1;
   // get name prameter; default empty string
-  const name = req.query.name ? req.query.name : "";
+  const name = req.query.name ? req.query.name : "a";
   // get song prameters; defaults 0 and 1 for low and high respectively
   const danceHigh = req.query.danceHigh ? req.query.danceHigh : 100;
   const danceLow = req.query.danceLow ? req.query.danceLow : 0;
@@ -142,7 +142,7 @@ function search_songs(req, res) {
     // query
     `SELECT s.song_id, s.title, s.album
         FROM Song s
-        WHERE       s.title LIKE '%${name}%'
+        WHERE       s.title LIKE '${name}%'
                 AND s.danceability >= ${danceLow}
                 AND s.danceability <= ${danceHigh}
                 AND s.energy >= ${energyLow}
@@ -417,7 +417,7 @@ function search_spotify_ranking(req, res) {
 // ------------------ CQ #4 -------------------
 // --------------------------------------------
 function get_awardstats_by_artist(req, res) {
-  const pagesize = req.query.pagesize ? req.query.pagesize : 10;
+  const pagesize = req.query.pagesize ? req.query.pagesize : 100;
   const page = req.query.page ? req.query.page : 1;
   const offset = (page - 1) * pagesize;
 
@@ -614,9 +614,9 @@ function get_spotifysongs_by_artistid(req, res) {
 
     connection.query(
       // query
-      `SELECT df2.artist_id, df2.artist, df2.latestweek, Song.* 
+      `SELECT df2.artist_id, df2.artist, df2.latestweek, num, Song.* 
         FROM    (SELECT df.* , Artist.name AS artist 
-                FROM    (SELECT DISTINCT SpotifyRanking.song_id, MAX(SpotifyRanking.week) as latestweek , SA.artist_id 
+                FROM    (SELECT DISTINCT SpotifyRanking.song_id, MAX(SpotifyRanking.week) as latestweek , count(SpotifyRanking.week) AS num, SA.artist_id 
                         FROM    SpotifyRanking
                                 JOIN SongArtist SA  ON SpotifyRanking.song_id = SA.song_id
                         WHERE SA.artist_id = '${artist_id}'
