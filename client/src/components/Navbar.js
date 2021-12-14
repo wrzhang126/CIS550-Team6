@@ -11,12 +11,10 @@ import { useNavigate } from "react-router-dom";
 
 export default function Navigationbar() {
   const navigate = useNavigate();
-
   return (
     <div>
       <Navbar bg="light" expand="lg">
         <Container fluid>
-          <Navbar.Brand href="#">Tbd</Navbar.Brand>
           <Navbar.Toggle aria-controls="navbarScroll" />
           <Navbar.Collapse id="navbarScroll">
             <Nav
@@ -31,7 +29,7 @@ export default function Navigationbar() {
                 }
                 style={{ marginRight: "10px" }}
               >
-                Search by Artist
+                Search Artists
               </Button>
               <Button
                 type="link"
@@ -40,7 +38,7 @@ export default function Navigationbar() {
                 }
                 style={{ marginRight: "10px" }}
               >
-                Search by Song
+                Search Songs
               </Button>
               <Button
                 type="link"
@@ -50,10 +48,10 @@ export default function Navigationbar() {
                   })
                 }
               >
-                Ranking
+                Top Artists
               </Button>
               <Button type="link" onClick={() => navigate("/boringpage")}>
-                Boring page
+                Top Songs
               </Button>
             </Nav>
           </Navbar.Collapse>

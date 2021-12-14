@@ -8,6 +8,7 @@ const getAllSongs = async (page, pagesize) => {
   );
   return res.json();
 };
+
 const getSong = async (song_id) => {
   var res = await fetch(
     `http://${config.server_host}:${config.server_port}/song/${song_id}`,

@@ -64,7 +64,7 @@ export default function SearchByArtistPage() {
                 };
               }}
               pagination={{
-                pageSizeOptions: [5, 10],
+                pageSizeOptions: [5, 10, 50],
                 defaultPageSize: 5,
                 showQuickJumper: true,
               }}

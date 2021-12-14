@@ -158,6 +158,7 @@ function search_songs(req, res) {
     // callback
     function (error, results, fields) {
       if (error) {
+        console.log("this is the error");
         console.log(error);
         res.json({ error: error });
       } else if (results) {
@@ -172,7 +173,6 @@ function get_song_by_id(req, res) {
   if (req.params["id"]) {
     // get id
     const song_id = req.params["id"];
-
     connection.query(
       // query
       `SELECT s.*, GROUP_CONCAT(a.name) AS artist_names, GROUP_CONCAT(a.artist_id) AS artist_ids

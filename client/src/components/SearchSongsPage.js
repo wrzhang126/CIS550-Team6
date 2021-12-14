@@ -64,7 +64,7 @@ export default function SearchSongsPage() {
       newQuery["page"] = page + 1;
       newQuery["pagesize"] = pageSize;
       getSongSearch(newQuery).then((res) => {
-        setSongs([...songs, res.results]);
+        setSongs([...songs, ...res.results]);
       });
     }
   };
@@ -109,7 +109,7 @@ export default function SearchSongsPage() {
                 defaultPageSize: 10,
                 pageSizeOptions: [5, 10, 50],
               }}
-              scroll={{ y: 240 }}
+              scroll={{ y: 500 }}
             />
           </div>
           <div>

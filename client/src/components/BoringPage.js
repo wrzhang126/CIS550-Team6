@@ -5,9 +5,10 @@ import Navigationbar from "./Navbar";
 
 export default function BoringPage() {
   const { TabPane } = Tabs;
-  const [tableOne, setTableOne] = useState([]);
-  const [tableTwo, setTableTwo] = useState([]);
+  const [spotifyTable, setTableOne] = useState([]);
+  const [billboardTable, setTableTwo] = useState([]);
   const [loader, setLoader] = useState(true);
+  const [currentTab, setCurrentTab] = useState("spotify");
   useEffect(() => {
     getBoringTableOne().then((res) => {
       setTableOne(res.results);
@@ -40,15 +41,16 @@ export default function BoringPage() {
     },
   ];
   function callback(key) {
-    console.log(key);
+    setCurrentTab(key);
   }
+
   return (
     <div>
       <div>
         <Navigationbar />
       </div>
       <Tabs centered defaultActiveKey="1" onChange={callback}>
-        <TabPane tab="Spotify" key="1">
+        <TabPane tab="Spotify" key="spotify">
           <div style={{ width: "80%", margin: "auto" }}>
             <div style={{ textAlign: "center" }}>
               <h1>Consecutive weeks on Spotify</h1>
@@ -58,19 +60,29 @@ export default function BoringPage() {
               bordered
               loading={loader}
               columns={columnsOne}
-              dataSource={tableOne}
+              dataSource={spotifyTable}
+              pagination={{
+                defaultPageSize: 5,
+                pageSizeOptions: [5, 10, 50],
+              }}
+              scroll={{ y: 500 }}
             />
           </div>
         </TabPane>
-        <TabPane tab="Billboard" key="2">
+        <TabPane tab="Billboard" key="billboard">
           <div style={{ width: "80%", margin: "auto" }}>
             <div style={{ textAlign: "center" }}>
-              <h1>Consecutive weeks on Spotify</h1>
+              <h1>Consecutive weeks on Billboard</h1>
             </div>
             <Table
               loading={loader}
               columns={columnsOne}
-              dataSource={tableTwo}
+              dataSource={billboardTable}
+              pagination={{
+                defaultPageSize: 5,
+                pageSizeOptions: [5, 10, 50],
+              }}
+              scroll={{ y: 500 }}
             />
           </div>
         </TabPane>
