@@ -50,7 +50,7 @@ export default function Navigationbar() {
               >
                 Ranking
               </Button>
-              <Button type="link" onClick={() => navigate("/boringpagge")}>
+              <Button type="link" onClick={() => navigate("/boringpage")}>
                 Boring page
               </Button>
             </Nav>
