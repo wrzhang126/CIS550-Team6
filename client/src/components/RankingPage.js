@@ -71,11 +71,11 @@ export default function RankingPage() {
   const [billboardSongs, setBillboardSongs] = useState([]);
   const [grammySongs, setGrammySongs] = useState([]);
   const [selectedArtistId, setSelectedArtistId] = useState(
-    "0du5cEVh5yTK9QJze8zA0C"
-  );
-  const [awardStat, setAwardStat] = useState({});
-  const [artistInfo, setArtistInfo] = useState({});
+    "0du5cEVh5yTK9QJze8zA0C");
+  const [awardStat, setAwardStat] = useState(null);
+  const [artistInfo, setArtistInfo] = useState(null);
   const [activeTab, setActiveTab] = useState("tab1");
+  const [loader, setLoader] = useState(true);
 
   const handleRowSelection = (record) => {
     console.log(record);
@@ -110,6 +110,7 @@ export default function RankingPage() {
     getArtistStats().then((res) => {
       console.log(res.results);
       setArtistsStats(res.results);
+      setLoader(false);
     });
 
     getAwardStat(selectedArtistId).then((res) => {
@@ -160,9 +161,10 @@ export default function RankingPage() {
       </div>
       <Table
         id="filter-container"
-        style={{ width: "70vw", margin: "20px auto" }}
+        style={{ width: "80%", margin: "20px auto" }}
         dataSource={artistsStats}
         columns={artistColumns}
+        loading={loader}
         pagination={{
           pageSizeOptions: [5, 10],
           defaultPageSize: 5,
@@ -176,6 +178,8 @@ export default function RankingPage() {
           };
         }}
       />
+
+      {artistInfo &&
       <div style={{ width: "50%", margin: "auto" }}>
         <Card
           hoverable
@@ -256,6 +260,7 @@ export default function RankingPage() {
                     </div>
                 </Carousel> */}
       </div>
+      }
     </div>
   );
 }
