@@ -1,7 +1,8 @@
 import React from "react";
 import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
-import Button from "react-bootstrap/Button";
+// import Button from "react-bootstrap/Button";
+import { Button } from "antd";
 import Nav from "react-bootstrap/Nav";
 import FormControl from "react-bootstrap/FormControl";
 import Form from "react-bootstrap/Form";
@@ -24,7 +25,7 @@ export default function Navigationbar() {
               navbarScroll
             >
               <Button
-                variant="outline-primary"
+                type="link"
                 onClick={() =>
                   navigate("/search/artists", { from: "SearchBySong" })
                 }
@@ -33,14 +34,14 @@ export default function Navigationbar() {
                 Search by Artist
               </Button>
               <Button
-                variant="outline-primary"
+                type="link"
                 onClick={() => navigate("/songs", { from: "SearchByArtist" })}
                 style={{ marginRight: "10px" }}
               >
                 Search by Song
               </Button>
               <Button
-                variant="outline-primary"
+                type="link"
                 onClick={() =>
                   navigate("/ranking", {
                     from: ["SearchByArtist", "SearchBySong"],
@@ -49,22 +50,10 @@ export default function Navigationbar() {
               >
                 Ranking
               </Button>
-              <Button
-                variant="outline-primary"
-                onClick={() => navigate("/boringpage")}
-              >
+              <Button type="link" onClick={() => navigate("/boringpagge")}>
                 Boring page
               </Button>
             </Nav>
-            <Form className="d-flex">
-              <FormControl
-                type="search"
-                placeholder="Search by artist"
-                className="me-2"
-                aria-label="Search"
-              />
-              <Button variant="outline-primary">Search</Button>
-            </Form>
           </Navbar.Collapse>
         </Container>
       </Navbar>
