@@ -48,18 +48,31 @@ export default function BoringPage() {
         <Navigationbar />
       </div>
       <Tabs centered defaultActiveKey="1" onChange={callback}>
-        <TabPane tab="Tab 1" key="1">
-          <div style={{ textAlign: "center" }}>
-            <h1>Table one</h1>
-          </div>
+        <TabPane tab="Spotify" key="1">
+          <div style={{ width: "80%", margin: "auto" }}>
+            <div style={{ textAlign: "center" }}>
+              <h1>Consecutive weeks on Spotify</h1>
+            </div>
 
-          <Table loading={loader} columns={columnsOne} dataSource={tableOne} />
-        </TabPane>
-        <TabPane tab="Tab 2" key="2">
-          <div style={{ textAlign: "center" }}>
-            <h1>Table two</h1>
+            <Table
+              bordered
+              loading={loader}
+              columns={columnsOne}
+              dataSource={tableOne}
+            />
           </div>
-          <Table loading={loader} columns={columnsOne} dataSource={tableTwo} />
+        </TabPane>
+        <TabPane tab="Billboard" key="2">
+          <div style={{ width: "80%", margin: "auto" }}>
+            <div style={{ textAlign: "center" }}>
+              <h1>Consecutive weeks on Spotify</h1>
+            </div>
+            <Table
+              loading={loader}
+              columns={columnsOne}
+              dataSource={tableTwo}
+            />
+          </div>
         </TabPane>
       </Tabs>
     </div>

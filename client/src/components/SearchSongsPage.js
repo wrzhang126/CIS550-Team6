@@ -68,6 +68,7 @@ export default function SearchSongsPage() {
                   }, // click row
                 };
               }}
+              bordered
               pagination={{
                 pageSizeOptions: [5, 10],
                 defaultPageSize: 5,

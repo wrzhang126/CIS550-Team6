@@ -68,6 +68,7 @@ export default function SearchByArtistPage() {
                 defaultPageSize: 5,
                 showQuickJumper: true,
               }}
+              bordered
             />
           </div>
         </div>
