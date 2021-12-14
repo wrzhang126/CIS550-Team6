@@ -6,6 +6,7 @@ import RankingPage from "./components/RankingPage";
 import BoringPage from "./components/BoringPage";
 import SearchSongsPage from "./components/SearchSongsPage";
 import StartPage from "./components/StartPage";
+import Navigationbar from "./components/Navbar";
 
 function App() {
   return (
