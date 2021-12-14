@@ -51,45 +51,41 @@ const getSongsByArtist = async (artist_id) => {
   );
   return res.json();
 };
-const getSongSearch = async (
+const getSongSearch = async ({
   name,
-  danceabilityLow,
-  danceabilityHigh,
-  energyLow,
-  energyHigh,
-  livenessLow,
-  livenessHigh,
-  tempoLow,
-  tempoHigh,
-  valenceLow,
-  valenceHigh,
+  danceability,
+  energy,
+  liveness,
+  tempo,
+  valence,
   startYear,
   endYear,
   page,
-  pagesize
-) => {
+  pagesize,
+}) => {
   var res = await fetch(
     `http://${config.server_host}:${config.server_port}/search/songs?name=${
       name ? name : ""
-    }&danceLow=${danceabilityLow ? danceabilityLow : ""}&danceHigh=${
-      danceabilityHigh ? danceabilityHigh : ""
-    }&energyLow=${energyLow ? energyLow : ""}&energyHigh=${
-      energyHigh ? energyHigh : ""
-    }&livenessLow=${livenessLow ? livenessLow : ""}&livenessHigh=${
-      livenessHigh ? livenessHigh : ""
-    }&tempoLow=${tempoLow ? tempoLow : ""}&tempoHigh=${
-      tempoHigh ? tempoHigh : ""
-    }&valenceLow=${valenceLow ? valenceLow : ""}&valenceHigh=${
-      valenceHigh ? valenceHigh : ""
-    }&startYear=${startYear ? startYear : ""}&endYear=${
-      endYear ? endYear : ""
-    }&page=${page ? page : ""}&pagesize=${pagesize ? pagesize : ""}`,
+    }&danceLow=${danceability ? danceability[0] : ""}&danceHigh=${
+      danceability ? danceability[1] : ""
+    }&energyLow=${energy ? energy[0] : ""}&energyHigh=${
+      energy ? energy[1] : ""
+    }&livenessLow=${liveness ? liveness[0] : ""}&livenessHigh=${
+      liveness ? liveness[1] : ""
+    }&tempoLow=${tempo ? tempo[0] : ""}&tempoHigh=${
+      tempo ? tempo[1] : ""
+    }&valenceLow=${valence ? valence[0] : ""}&valenceHigh=${
+      valence ? valence[1] : ""
+    }&startYear=${startYear ? startYear._d.getFullYear() : ""}&endYear=${
+      endYear ? startYear._d.getFullYear() : ""
+    }&page=${page ? page : 1}&pagesize=${pagesize ? pagesize : 100}`,
     {
       method: "GET",
     }
   );
   return res.json();
 };
+
 const getAwardedArtists = async (page, pagesize) => {
   var res = await fetch(
     `http://${config.server_host}:${config.server_port}/ranking?page=${page}&pagesize=${pagesize}`,
