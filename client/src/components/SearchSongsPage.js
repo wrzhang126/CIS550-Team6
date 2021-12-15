@@ -13,7 +13,7 @@ export default function SearchSongsPage() {
   const [loading, setLoader] = useState(false);
   const [values, setValues] = useState({});
   const [display, setDisplay] = useState(false);
-  const [artistsList, setArtist] = useState([]);
+  const [artistsList, setArtist] = useState(null);
   const [query, setQuery] = useState({});
   const handleFormSubmission = (values) => {
     setQuery(values);
@@ -52,8 +52,8 @@ export default function SearchSongsPage() {
         console.log(res.results[0]);
         if (!display) {
           setDisplay(true);
-          setArtist([res.results[0], ...artistsList]);
         }
+        setArtist(res.results[0]);
       });
     });
   };
@@ -161,19 +161,17 @@ export default function SearchSongsPage() {
                     <span style={{ fontWeight: "bold" }}>Artists</span>
 
                     <div style={{ display: "flex", gap: "5px" }}>
-                      {artistsList.length > 0 ? (
-                        artistsList.map((item) => (
+                      {artistsList ? (
                           <div id={"button"} style={{ textAlign: "center" }}>
-                            <Tooltip title={`${item.name}`} placement="top">
+                            <Tooltip title={`${artistsList.name}`} placement="top">
                               <Avatar
                                 style={{ margin: "auto" }}
                                 size={64}
-                                src={item.image_url}
+                                src={artistsList.image_url}
                               />
-                              <div style={{}}>{item.name}</div>
+                              <div style={{}}>{artistsList.name}</div>
                             </Tooltip>
                           </div>
-                        ))
                       ) : (
                         <div>hello</div>
                       )}

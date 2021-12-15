@@ -16,14 +16,8 @@ export default function Navigationbar() {
     <div>
       <Navbar bg="dark" expand="lg">
         <Container fluid>
-          <Navbar.Brand href="/">
-            {" "}
-            <img
-              width="30px"
-              height="30px"
-              style={{ borderRadius: "15px" }}
-              src="logo-whitebg.svg"
-            />
+          <Navbar.Brand href="/" style={{color:'#0D6EFD'}}>
+            {"MD"}
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="navbarScroll" />
           <Navbar.Collapse id="navbarScroll">
